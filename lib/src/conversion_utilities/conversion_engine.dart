@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
 
 
-class H1 extends StatelessWidget {
+class H1 extends TextBody {
+  EdgeInsets defaultPadding = EdgeInsets.only(
+    top: 5,
+    bottom: 5,
+  );
+  Color defaultColor = Colors.black;
+  double defaultFontSize = 36;
+  
+  H1({text, style, padding, margin, color}) : super(text: text, style: style, padding: padding, margin: margin, color: color);
+}
+
+class TextBody extends StatelessWidget {
   final text;
   TextStyle style;
   EdgeInsets padding;
@@ -14,9 +25,9 @@ class H1 extends StatelessWidget {
     bottom: 5,
   );
   Color defaultColor = Colors.black;
-  double defaultFontSize = 32;
+  double defaultFontSize = 16;
 
-  H1({
+  TextBody({
     this.text = '',
     this.style,
     this.padding,

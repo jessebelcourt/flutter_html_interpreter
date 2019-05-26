@@ -22,7 +22,7 @@ class _ArticleViewAppState extends State<ArticleViewApp> {
       switch(element.localName) {
         
         case ConversionEngine.h1: return Text(element.text);
-        case ConversionEngine.h2: return H1(text: element.text, color: Colors.purple);
+        case ConversionEngine.h2: return H1(text: element.text);
         case 'h3': return Text(element.innerHtml);
         case 'h4': return Text(element.innerHtml);
         case 'h5': return Text(element.innerHtml);
