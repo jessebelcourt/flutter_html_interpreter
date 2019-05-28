@@ -14,7 +14,9 @@ class ArticleViewApp extends StatefulWidget {
 }
 
 class _ArticleViewAppState extends State<ArticleViewApp> {
-  final ConversionEngine engine = ConversionEngine();
+  final ConversionEngine engine = ConversionEngine(
+    classToRemove: 'hideme',
+  );
 
   Widget filteredContent(String rawString) {
     return SingleChildScrollView(
@@ -27,10 +29,11 @@ class _ArticleViewAppState extends State<ArticleViewApp> {
   }
 
   Widget content(BuildContext context) {
-    return Center(
+    return Container(
+      padding: EdgeInsets.only(left: 15, right: 15),
       child: FutureBuilder(
           future: DefaultAssetBundle.of(context)
-              .loadString('assets/example-post.txt'),
+              .loadString('assets/example-post.html'),
           builder: (context, snapshot) {
             return filteredContent(snapshot.data);
           }),
