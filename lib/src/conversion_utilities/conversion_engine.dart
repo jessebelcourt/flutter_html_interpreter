@@ -1,39 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:blog_parser/src/conversion_utilities/element_type.dart';
+import 'package:blog_parser/src/conversion_utilities/style_values.dart';
+import 'package:html/dom.dart' as dom;
 
-enum ElementType {
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6,
-  p,
-}
-
-class H1 extends TextBody {
-  Color defaultColor = Colors.black;
-  double defaultFontSize = 36;
-
-  H1({text, style, padding, margin, color})
-      : super(
-            text: text,
-            style: style,
-            padding: padding,
-            margin: margin,
-            color: color);
-}
 
 class TextBody extends StatelessWidget {
-  static final h1FontSize = 38;
-  static final h2FontSize = 34;
-  static final h3FontSize = 30;
-  static final h4FontSize = 26;
-  static final h5FontSize = 22;
-  static final h6FontSize = 18;
-  static final paragraphFontSize = 16;
+  static final double h1FontSize = H1_FONT_SIZE;
+  static final double h2FontSize = H2_FONT_SIZE;
+  static final double h3FontSize = H3_FONT_SIZE;
+  static final double h4FontSize = H4_FONT_SIZE;
+  static final double h5FontSize = H5_FONT_SIZE;
+  static final double h6FontSize = H6_FONT_SIZE;
+  static final double pFontSize = P_FONT_SIZE;
   
-  final text;
-  final ElementType element;
+  String text;
+  ElementType element;
 
   TextStyle style;
   EdgeInsets padding;
@@ -41,22 +22,111 @@ class TextBody extends StatelessWidget {
   Color color;
   double size;
 
-
-  EdgeInsets defaultPadding = EdgeInsets.only(
-    top: 5,
-    bottom: 5,
-  );
-  Color defaultColor = Colors.black;
-  double defaultFontSize = 16;
+  EdgeInsets defaultPadding;
+  EdgeInsets defaultMargin;
+  Color defaultColor;
+  double defaultFontSize;
 
   TextBody({
-    this.text = '',
-    this.style,
-    this.padding,
-    this.margin,
-    this.color,
-    this.element,
-  });
+    text = '',
+    style,
+    padding,
+    margin,
+    color,
+    element = ElementType.p,
+  }) {
+
+    //need to have conditional logic where precedence will 
+    // take place based on what is passed.
+    this.text = text;
+    this.style = style;
+    this.padding = padding;
+    this.color = color;
+    this.element = element;
+    setDefaultStyle(element);
+  }
+
+  void setH1ElementDefaults() {
+    defaultPadding = EdgeInsets.only(
+      top: 5,
+      bottom: 5,
+    );
+    defaultColor = Colors.black;
+    defaultFontSize = TextBody.h1FontSize;
+  }
+  void setH2ElementsDefault() {
+    defaultPadding = EdgeInsets.only(
+      top: 5,
+      bottom: 5,
+    );
+    defaultColor = Colors.black;
+    defaultFontSize = TextBody.h2FontSize;
+  }
+  void setH3ElementDefaults() {
+    defaultPadding = EdgeInsets.only(
+      top: 5,
+      bottom: 5,
+    );
+    defaultColor = Colors.black;
+    defaultFontSize = TextBody.h3FontSize;
+  }
+  void setH4ElementDefaults() {
+    defaultPadding = EdgeInsets.only(
+      top: 5,
+      bottom: 5,
+    );
+    defaultColor = Colors.black;
+    defaultFontSize = TextBody.h4FontSize;;
+  }
+  void setH5ElementDefaults() {
+    defaultPadding = EdgeInsets.only(
+      top: 5,
+      bottom: 5,
+    );
+    defaultColor = Colors.black;
+    defaultFontSize = TextBody.h5FontSize;;
+  }
+  void setH6ElementDefaults() {
+    defaultPadding = EdgeInsets.only(
+      top: 5,
+      bottom: 5,
+    );
+    defaultColor = Colors.black;
+    defaultFontSize = TextBody.h6FontSize;
+  }
+  void setParagraphElementDefaults() {
+    defaultPadding = EdgeInsets.only(
+      top: 5,
+      bottom: 5,
+    );
+    defaultColor = Colors.black;
+    defaultFontSize = TextBody.pFontSize;
+  }
+
+  void setDefaultStyle(ElementType type) {
+    switch (type) {
+      case ElementType.h1:
+        setH1ElementDefaults();
+        break;
+      case ElementType.h2:
+        setH1ElementDefaults();
+        break;
+      case ElementType.h3:
+        setH1ElementDefaults();
+        break;
+      case ElementType.h4:
+        setH1ElementDefaults();
+        break;
+      case ElementType.h5:
+        setH1ElementDefaults();
+        break;
+      case ElementType.h6:
+        setH1ElementDefaults();
+        break;
+      default:
+        setParagraphElementDefaults();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,11 +150,49 @@ class ConversionEngine {
   static const String h4 = 'h4';
   static const String h5 = 'h5';
   static const String h6 = 'h6';
+  
+  ConversionEngine();
 
-  Widget run(String type) {
-    // switch(type) {
-    //   case ConversionEngine.h1:
-    //     return H1();
-    // }
+  Widget run(dom.Node node, List<Widget> children) {
+    if (node is dom.Element) {
+      switch (node.localName) {
+
+        case ConversionEngine.h1:
+          return TextBody(
+            text: node.text,
+            element: ElementType.h1,
+          );
+
+        case ConversionEngine.h2:
+          return TextBody(
+            text: node.text,
+            element: ElementType.h2,
+          );
+
+        case ConversionEngine.h3:
+          return TextBody(
+            text: node.text,
+            element: ElementType.h3,
+          );
+        case ConversionEngine.h4:
+          return TextBody(
+            text: node.text,
+            element: ElementType.h4,
+          );
+        case ConversionEngine.h5:
+          return TextBody(
+            text: node.text,
+            element: ElementType.h5,
+          );
+        case ConversionEngine.h6:
+          return TextBody(
+            text: node.text,
+            element: ElementType.h6,
+          );
+
+        default:
+          return null;
+      }
+    }
   }
 }
