@@ -21,7 +21,6 @@ class TextElement extends StatelessWidget {
   double fontSize;
   String text;
   Key key;
-  
 
   static List<ElementType> headers = [
     ElementType.h1,
@@ -155,7 +154,6 @@ class ConversionEngine {
         if (index >= 0) {
           String id = el.attributes['href'].substring(index);
           print(id);
-
         }
         // print('index: $index');
       }
@@ -167,23 +165,61 @@ class ConversionEngine {
     });
   }
 
+  void linkInterpolation(dom.Element node) {
+    // List<dom.Element> els = node.children;
+    // dom.Node newParent = node.clone(true);
+    // node.parentNode.remove();
+    // newParent.reparentChildren(null);
+    // print(newParent);
+    // dom.Element newParent = dom.Element.html(node.localName);
+    // node.reparentChildren(newParent);
+    
+    // node.reparentChildren(newParent);
+    // print(newParent.text);
+    // dom.Element newParent = dom.Element();
+    // List<dom.Element> broken = node.children
+    // print(node.outerHtml);
+    // node.children.forEach((el) {
+    //   node.remove();
+      // print('localtype: ${el.localName}');
+      // print('nodeType: ${el.nodeType}');
+      // print('el.text: ${el.text}');
+    // });
+    // node.children.forEach((el) => el.remove());
+    // print(node.text);
+    // node.children.forEach((el) {
+      // print('el.text: ${el.text}');
+      // print(el.nodeType == dom.Node.TEXT_NODE);
+    // });
+    node.getElementsByTagName('a').forEach((link) {
+      print('node: ${node.localName} --linktext ${link.text}');
+      link.text = '[FINDME]${link.text}[/FINDME]';
+    });
+    print(node.text);
+
+  }
+
   Widget run(dom.Node node, List<Widget> children) {
     List<Map<Key, String>> keys;
 
     if (node is dom.Element) {
+      // print(node.nodeType);
+      // print('node.nodeType: ${node.nodeType}');
+      // print('ELEMENT_NODE: ${dom.Node.ELEMENT_NODE}');
       //links...
       // if (node.children.contains(element)) {
 
       // }
-      List<dom.Element> els = node.getElementsByTagName('a');
-      containsInternalLink(els);
+      // List<dom.Element> els = node.getElementsByTagName('a');
+      // containsInternalLink(els);
 
-      var image =   node.querySelector('img');
+      // linkInterpolation(node);
+
+      var image = node.querySelector('img');
       if (image != null) {
         return null;
       }
-      print('image: $image');
-
+      // print('image: $image');
 
       if (stripEmptyElements && (node.text == '\u00A0')) {
         return Container();
@@ -197,6 +233,9 @@ class ConversionEngine {
         case H1:
           // TextElement clone = h1.cloneWithText(node.text);
           // Key key  = clone.key;
+          linkInterpolation(node);
+          String withText = node.text;
+          node.remove();
           return h1.cloneWithText(node.text);
 
         case H2:
@@ -206,6 +245,8 @@ class ConversionEngine {
           return h3.cloneWithText(node.text);
 
         case H4:
+          // linkInterpolation(node);
+          print('node.localName: ${node.localName}');
           return h4.cloneWithText(node.text);
 
         case H5:
