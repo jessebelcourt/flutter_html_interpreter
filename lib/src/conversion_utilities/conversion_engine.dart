@@ -42,18 +42,31 @@ class TextElement extends StatelessWidget {
     this.fontSize = fontSize ?? fontSizes[type];
   }
 
+  Widget cloneWithText(String textIn) {
+    return TextElement(
+      padding: padding,
+      margin: margin,
+      type: type,
+      fontSize: fontSize,
+      text: textIn
+    );
+  }
+
   Widget header() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        Container(
-          padding: padding,
-          margin: margin,
-          child: Text(
-            text,
-            style: TextStyle(
-              color: color,
-              fontSize: fontSize,
+        Flexible(
+          child: Container(
+            padding: padding,
+            margin: margin,
+            child: Text(
+              text,
+              
+              style: TextStyle(
+                color: color,
+                fontSize: fontSize,
+              ),
             ),
           ),
         )
@@ -62,6 +75,7 @@ class TextElement extends StatelessWidget {
   }
 
   Widget p() {
+    print(text);
     return Container(
       padding: padding,
       margin: EdgeInsets.all(0),
@@ -111,48 +125,38 @@ class ConversionEngine {
 
   Widget run(dom.Node node, List<Widget> children) {
     if (node is dom.Element) {
+      
       if (classToRemove != null && node.classes.contains(classToRemove)) {
         return Container();
       }
 
+      
+
       switch (node.localName) {
         case H1:
-          h1.text = node.text;
-          return h1;
+          return h1.cloneWithText(node.text);
 
         case H2:
-          h2.text = node.text;
-          return h2;
+          return h2.cloneWithText(node.text);
 
         case H3:
-          h3.text = node.text;
-          return h3;
+          return h3.cloneWithText(node.text);
 
         case H4:
-          h4.text = node.text;
-          return h4;
+          return h4.cloneWithText(node.text);
 
         case H5:
-          h5.text = node.text;
-          return h5;
+          return h5.cloneWithText(node.text);
 
         case H6:
-          h6.text = node.text;
-          return h6;
+          return h6.cloneWithText(node.text);
 
         case P:
-          print(node.text == '\u00A0');
-
-          
-
-
           if (node.text == '\u00A0') {
             return null;
           }
 
-          node.text = node.text.replaceAll('\u00A0', '');
-          p.text = node.text;
-          return p;
+          return h6.cloneWithText(node.text.replaceAll('\u00A0', ''));
 
         default:
           return null;
