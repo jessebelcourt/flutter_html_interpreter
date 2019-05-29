@@ -3,13 +3,25 @@ import 'package:blog_parser/src/conversion_utilities/element_type.dart';
 import 'package:blog_parser/src/conversion_utilities/style_values.dart';
 import 'package:html/dom.dart' as dom;
 
+class HRDivider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Divider(
+      height: 2,
+      color: Colors.black,
+    );
+  }
+}
+
 class TextElement extends StatelessWidget {
-  final EdgeInsets padding;
-  final EdgeInsets margin;
-  final Color color;
-  final ElementType type;
+  EdgeInsets padding;
+  EdgeInsets margin;
+  Color color;
+  ElementType type;
   double fontSize;
   String text;
+  Key key;
+  
 
   static List<ElementType> headers = [
     ElementType.h1,
@@ -30,26 +42,29 @@ class TextElement extends StatelessWidget {
     ElementType.p: P_FONT_SIZE,
   };
 
-  TextElement({
-    this.padding = defaultPadding,
-    this.margin = defaultMargin,
-    this.color = defaultHeaderColor,
-    this.text = '',
-    this.type = ElementType.p,
-    fontSize
-  }) {
+  TextElement(
+      {this.padding = defaultPadding,
+      this.margin = defaultMargin,
+      this.color = defaultHeaderColor,
+      this.text = '',
+      this.type = ElementType.p,
+      fontSize}) {
     // set font size
     this.fontSize = fontSize ?? fontSizes[type];
   }
 
   Widget cloneWithText(String textIn) {
     return TextElement(
-      padding: padding,
-      margin: margin,
-      type: type,
-      fontSize: fontSize,
-      text: textIn
-    );
+        padding: padding,
+        margin: margin,
+        type: type,
+        fontSize: fontSize,
+        text: textIn);
+  }
+
+  Widget withKey(TextElement me, String id) {
+    me.key = UniqueKey();
+    return me;
   }
 
   Widget header() {
@@ -62,7 +77,6 @@ class TextElement extends StatelessWidget {
             margin: margin,
             child: Text(
               text,
-              
               style: TextStyle(
                 color: color,
                 fontSize: fontSize,
@@ -75,10 +89,9 @@ class TextElement extends StatelessWidget {
   }
 
   Widget p() {
-    print(text);
     return Container(
       padding: padding,
-      margin: EdgeInsets.all(0),
+      margin: margin,
       child: Text(
         text,
         style: TextStyle(
@@ -104,6 +117,9 @@ class TextElement extends StatelessWidget {
 
 class ConversionEngine {
   String classToRemove;
+  bool stripEmptyElements = true;
+  String domain = 'amchara.com';
+
   TextElement h1;
   TextElement h2;
   TextElement h3;
@@ -111,6 +127,7 @@ class ConversionEngine {
   TextElement h5;
   TextElement h6;
   TextElement p;
+  HRDivider hr;
 
   ConversionEngine({this.classToRemove, h1}) {
     this.h1 = h1 ?? TextElement(type: ElementType.h1);
@@ -120,20 +137,66 @@ class ConversionEngine {
     this.h4 = h4 ?? TextElement(type: ElementType.h4);
     this.h5 = h5 ?? TextElement(type: ElementType.h5);
     this.h6 = h6 ?? TextElement(type: ElementType.h6);
-    this.p = p ?? TextElement(type: ElementType.p);
+    this.p = p ??
+        TextElement(
+          type: ElementType.p,
+          margin: EdgeInsets.only(top: 5, bottom: 5),
+          padding: EdgeInsets.only(top: 5, bottom: 5),
+        );
+    this.hr = hr ?? HRDivider();
+  }
+
+  void containsInternalLink(List<dom.Element> elements) {
+    elements.forEach((el) {
+      if (el.attributes['href'] != null) {
+        // Uri uri = Uri.parse(el.attributes['href']);
+        // String path = uri.path;
+        int index = el.attributes['href'].indexOf('#');
+        if (index >= 0) {
+          String id = el.attributes['href'].substring(index);
+          print(id);
+
+        }
+        // print('index: $index');
+      }
+      // if (el.attributes['href'] != null && el.attributes['href'].contains(domain)) {
+      //   Uri uri = Uri.parse(el.attributes['href']);
+      //   String path = uri.path;
+      //   print('path: $path');
+      // }
+    });
   }
 
   Widget run(dom.Node node, List<Widget> children) {
+    List<Map<Key, String>> keys;
+
     if (node is dom.Element) {
-      
+      //links...
+      // if (node.children.contains(element)) {
+
+      // }
+      List<dom.Element> els = node.getElementsByTagName('a');
+      containsInternalLink(els);
+
+      var image =   node.querySelector('img');
+      if (image != null) {
+        return null;
+      }
+      print('image: $image');
+
+
+      if (stripEmptyElements && (node.text == '\u00A0')) {
+        return Container();
+      }
+
       if (classToRemove != null && node.classes.contains(classToRemove)) {
         return Container();
       }
 
-      
-
       switch (node.localName) {
         case H1:
+          // TextElement clone = h1.cloneWithText(node.text);
+          // Key key  = clone.key;
           return h1.cloneWithText(node.text);
 
         case H2:
@@ -152,11 +215,10 @@ class ConversionEngine {
           return h6.cloneWithText(node.text);
 
         case P:
-          if (node.text == '\u00A0') {
-            return null;
-          }
+          return p.cloneWithText(node.text.replaceAll('\u00A0', ''));
 
-          return h6.cloneWithText(node.text.replaceAll('\u00A0', ''));
+        case HR:
+          return HRDivider();
 
         default:
           return null;

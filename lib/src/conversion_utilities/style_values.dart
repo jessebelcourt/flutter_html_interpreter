@@ -7,6 +7,7 @@ const H4 = 'h4';
 const H5 = 'h5';
 const H6 = 'h6';
 const P = 'p';
+const HR = 'hr';
 
 const H1_FONT_SIZE = 38.0;
 const H2_FONT_SIZE = 34.0;
