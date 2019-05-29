@@ -41,18 +41,52 @@ class TextElement extends StatelessWidget {
     ElementType.p: P_FONT_SIZE,
   };
 
-  TextElement(
-      {this.padding = defaultPadding,
-      this.margin = defaultMargin,
-      this.color = defaultHeaderColor,
-      this.text = '',
-      this.type = ElementType.p,
-      fontSize}) {
+  TextElement({
+    this.padding = defaultPadding,
+    this.margin = defaultMargin,
+    this.color = defaultHeaderColor,
+    this.text = '',
+    this.type = ElementType.p,
+    fontSize,
+  }) {
     // set font size
     this.fontSize = fontSize ?? fontSizes[type];
   }
 
+  void buildContent(String text, int index) {
+    String temp = text;
+    List<dynamic> result = [];
+    int counter = 0;
+
+    //replace with link
+    if (index >= 0) {
+      while(temp.isNotEmpty) {
+        index = temp.indexOf('[FINDME]');
+
+        if (index == 0) {
+          result.add('[FINDME]');
+          temp = temp.substring('[FINDME]'.length);
+          continue;
+        } else if (index > -1) {
+          result.add(temp.substring(0, index));
+          temp = temp.substring(index);
+          continue;
+        } else {
+          temp = '';
+        }
+      }
+    }
+    print(result);
+  }
+
   Widget cloneWithText(String textIn) {
+
+    int index = textIn.indexOf('[FINDME]');
+    if (index > -1) {
+      buildContent(textIn, index);
+    }
+
+
     return TextElement(
         padding: padding,
         margin: margin,
@@ -71,9 +105,16 @@ class TextElement extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         Flexible(
-          child: Container(
-            padding: padding,
-            margin: margin,
+          // child: Container(
+          //   padding: padding,
+          //   margin: margin,
+          //   child: RichText(
+          //     text: TextSpan(
+          //       children: <TextSpan>[
+
+          //       ],
+          //     ),
+          //   ),
             child: Text(
               text,
               style: TextStyle(
@@ -82,7 +123,7 @@ class TextElement extends StatelessWidget {
               ),
             ),
           ),
-        )
+        // )
       ],
     );
   }
@@ -153,7 +194,7 @@ class ConversionEngine {
         int index = el.attributes['href'].indexOf('#');
         if (index >= 0) {
           String id = el.attributes['href'].substring(index);
-          print(id);
+          // print(id);
         }
         // print('index: $index');
       }
@@ -173,7 +214,7 @@ class ConversionEngine {
     // print(newParent);
     // dom.Element newParent = dom.Element.html(node.localName);
     // node.reparentChildren(newParent);
-    
+
     // node.reparentChildren(newParent);
     // print(newParent.text);
     // dom.Element newParent = dom.Element();
@@ -181,26 +222,27 @@ class ConversionEngine {
     // print(node.outerHtml);
     // node.children.forEach((el) {
     //   node.remove();
-      // print('localtype: ${el.localName}');
-      // print('nodeType: ${el.nodeType}');
-      // print('el.text: ${el.text}');
+    // print('localtype: ${el.localName}');
+    // print('nodeType: ${el.nodeType}');
+    // print('el.text: ${el.text}');
     // });
     // node.children.forEach((el) => el.remove());
     // print(node.text);
     // node.children.forEach((el) {
-      // print('el.text: ${el.text}');
-      // print(el.nodeType == dom.Node.TEXT_NODE);
+    // print('el.text: ${el.text}');
+    // print(el.nodeType == dom.Node.TEXT_NODE);
     // });
     node.getElementsByTagName('a').forEach((link) {
-      print('node: ${node.localName} --linktext ${link.text}');
-      link.text = '[FINDME]${link.text}[/FINDME]';
+      if (!link.text.contains('[FINDME]')) {
+        link.text = '[FINDME]${link.text}[FINDME]';
+      }
     });
-    print(node.text);
-
+    // print(node.text);
   }
 
   Widget run(dom.Node node, List<Widget> children) {
     List<Map<Key, String>> keys;
+    // print(node);
 
     if (node is dom.Element) {
       // print(node.nodeType);
@@ -234,9 +276,10 @@ class ConversionEngine {
           // TextElement clone = h1.cloneWithText(node.text);
           // Key key  = clone.key;
           linkInterpolation(node);
-          String withText = node.text;
-          node.remove();
+          // node.replaceWith(node.clone(false));
+          // return h1.cloneWithText('yooooooo');
           return h1.cloneWithText(node.text);
+          break;
 
         case H2:
           return h2.cloneWithText(node.text);
@@ -246,7 +289,7 @@ class ConversionEngine {
 
         case H4:
           // linkInterpolation(node);
-          print('node.localName: ${node.localName}');
+          // print('node.localName: ${node.localName}');
           return h4.cloneWithText(node.text);
 
         case H5:
