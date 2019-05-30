@@ -129,32 +129,6 @@ class TextElement extends StatelessWidget {
     );
   }
 
-  Widget withKey(TextElement me, String id) {
-    me.key = UniqueKey();
-    return me;
-  }
-  
-  Widget p() {
-    return Container(
-      padding: padding,
-      margin: margin,
-      child: RichText(
-        text: TextSpan(
-          style: TextStyle(color: Colors.black),
-          children: text.toList(),
-        ),
-      ),
-
-      // child: Text(
-      //   text,
-      //   style: TextStyle(
-      //     color: color,
-      //     fontSize: fontSize,
-      //   ),
-      // ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     Widget element;
@@ -166,7 +140,12 @@ class TextElement extends StatelessWidget {
         text: text.toList(),
       );
     } else {
-      element = p();
+      element = Paragraph(
+        padding: padding,
+        margin: margin,
+        fontSize: fontSize,
+        text: text.toList(),
+      );
     }
 
     return element;
@@ -292,7 +271,7 @@ class ConversionEngine {
         return Container();
       }
 
-      return null;
+      // return null;
 
       switch (node.localName) {
         case H1:
