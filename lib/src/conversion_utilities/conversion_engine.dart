@@ -2,18 +2,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:blog_parser/src/conversion_utilities/element_type.dart';
 import 'package:blog_parser/src/conversion_utilities/style_values.dart';
+import 'package:blog_parser/src/conversion_utilities/custom_components.dart';
 import 'package:html/dom.dart' as dom;
 
 typedef Text customRenderType(dynamic node, dynamic children);
 
-class HRDivider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Divider(
-      height: 2,
-      color: Colors.black,
-    );
-  }
+class ElementOptions {
+  EdgeInsets padding;
+  ElementOptions({this.padding});
 }
 
 class TextElement extends StatelessWidget {
@@ -22,9 +18,9 @@ class TextElement extends StatelessWidget {
   Color color;
   ElementType type;
   double fontSize;
-  // String text;
   List<TextSpan> text;
   Key key;
+  ElementOptions options;
 
   static List<ElementType> headers = [
     ElementType.h1,
@@ -52,7 +48,10 @@ class TextElement extends StatelessWidget {
     this.text = defaultText,
     this.type = ElementType.p,
     fontSize,
+    this.options,
   }) {
+    if (options != null) {}
+
     // set font size
     this.fontSize = fontSize ?? fontSizes[type];
   }
@@ -111,7 +110,6 @@ class TextElement extends StatelessWidget {
         }
       }
     }
-    print(result);
     return result;
   }
 
@@ -135,30 +133,7 @@ class TextElement extends StatelessWidget {
     me.key = UniqueKey();
     return me;
   }
-
-  Widget header() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: <Widget>[
-        Flexible(
-          child: Container(
-            padding: padding,
-            margin: margin,
-            child: RichText(
-              text: TextSpan(
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: fontSize,
-                ),
-                children: text.toList(),
-              ),
-            ),
-          ),
-        )
-      ],
-    );
-  }
-
+  
   Widget p() {
     return Container(
       padding: padding,
@@ -184,7 +159,12 @@ class TextElement extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget element;
     if (headers.contains(type)) {
-      element = header();
+      element = Header(
+        padding: padding,
+        margin: margin,
+        fontSize: fontSize,
+        text: text.toList(),
+      );
     } else {
       element = p();
     }
@@ -198,6 +178,8 @@ class ConversionEngine {
   bool stripEmptyElements = true;
   String domain = 'amchara.com';
 
+  ElementOptions h1Options;
+
   TextElement h1;
   TextElement h2;
   TextElement h3;
@@ -208,7 +190,12 @@ class ConversionEngine {
   HRDivider hr;
   Function customRender;
 
-  ConversionEngine({this.classToRemove, this.customRender}) {
+  ConversionEngine({
+    this.classToRemove,
+    this.customRender,
+    h1Options,
+  }) {
+    print(h1Options.runtimeType == ElementOptions);
     this.h1 = h1 ?? TextElement(type: ElementType.h1);
     this.h2 = h2 ?? TextElement(type: ElementType.h2);
     this.h2 = h2 ?? TextElement(type: ElementType.h2);
@@ -245,6 +232,10 @@ class ConversionEngine {
     });
   }
 
+  // bool checkForPadding() {
+
+  // }
+
   void linkInterpolation(dom.Element node) {
     // List<dom.Element> els = node.children;
     // dom.Node newParent = node.clone(true);
@@ -280,14 +271,12 @@ class ConversionEngine {
   }
 
   Widget run(dom.Node node, List<Widget> children) {
-
     //Run customRender first if the user has defined it.
     if (customRender != null) {
       return customRender(node, children);
     }
-    
-    if (node is dom.Element) {
 
+    if (node is dom.Element) {
       // List<dom.Element> els = node.getElementsByTagName('a');
       // containsInternalLink(els);
       var image = node.querySelector('img');
