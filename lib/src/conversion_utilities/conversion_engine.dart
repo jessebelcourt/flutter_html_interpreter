@@ -8,7 +8,7 @@ import 'package:html/dom.dart' as dom;
 class ConversionEngine {
   String classToRemove;
   bool stripEmptyElements = true;
-  String domain = 'amchara.com';
+  String domain;
 
   TextBasedElement h1;
   TextBasedElement h2;
@@ -24,6 +24,7 @@ class ConversionEngine {
   ConversionEngine({
     this.classToRemove,
     this.customRender,
+    this.domain,
     TextBasedElement h1,
     TextBasedElement h2,
     TextBasedElement h3,
@@ -92,14 +93,10 @@ class ConversionEngine {
       if (classToRemove != null && node.classes.contains(classToRemove)) {
         return Container();
       }
-      
+
       switch (node.localName) {
         case H1:
-          // TextElement clone = h1.cloneWithText(node.text);
-          // Key key  = clone.key;
           linkInterpolation(node);
-          // node.replaceWith(node.clone(false));
-          // return h1.cloneWithText('yooooooo');
           return h1.cloneWithText(node.text);
           break;
 
@@ -110,8 +107,6 @@ class ConversionEngine {
           return h3.cloneWithText(node.text);
 
         case H4:
-          // linkInterpolation(node);
-          // print('node.localName: ${node.localName}');
           return h4.cloneWithText(node.text);
 
         case H5:

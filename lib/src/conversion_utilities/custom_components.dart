@@ -245,13 +245,6 @@ class TextBasedElement extends StatelessWidget {
           text: content,
         );
     }
-    // return TextElement(
-    //   padding: padding,
-    //   margin: margin,
-    //   type: type,
-    //   fontSize: fontSize,
-    //   text: content,
-    // );
   }
 
   void setDefaults(ElementType type) {

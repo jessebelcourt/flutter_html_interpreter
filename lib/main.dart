@@ -16,10 +16,7 @@ class ArticleViewApp extends StatefulWidget {
 class _ArticleViewAppState extends State<ArticleViewApp> {
   final ConversionEngine engine = ConversionEngine(
     classToRemove: 'hideme',
-
-    // h1Options: {
-    //   padding: EdgeInsets.only(left: 100),
-    // }
+    domain: 'amchara.com',
     // customRender: (node, children) {
     //   if (node is dom.Element) {
     //     if (node.localName == 'h1') {
