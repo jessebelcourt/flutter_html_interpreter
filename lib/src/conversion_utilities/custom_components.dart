@@ -201,15 +201,11 @@ class TextBasedElement extends StatelessWidget {
   }
 
   Widget cloneWithText(String textIn) {
-    print('this is running');
     int index = textIn.indexOf('[FINDME]');
 
     List<TextSpan> content = (index > -1
         ? buildContent(textIn, index)
         : <TextSpan>[TextSpan(text: textIn)]);
-
-    print(this.type);
-    print(textIn);
 
     switch (type) {
       case ElementType.h1:
@@ -218,7 +214,6 @@ class TextBasedElement extends StatelessWidget {
       case ElementType.h4:
       case ElementType.h5:
       case ElementType.h6:
-        print('this is working');
         return Header(
           padding: this.padding,
           margin: this.margin,
