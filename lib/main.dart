@@ -16,6 +16,13 @@ class ArticleViewApp extends StatefulWidget {
 class _ArticleViewAppState extends State<ArticleViewApp> {
   final ConversionEngine engine = ConversionEngine(
     classToRemove: 'hideme',
+    // customRender: (node, children) {
+    //   if (node is dom.Element) {
+    //     if (node.localName == 'h1') {
+    //       return Text('tisk tisk tisk');
+    //     }
+    //   }
+    // }
   );
 
   Widget filteredContent(String rawString) {

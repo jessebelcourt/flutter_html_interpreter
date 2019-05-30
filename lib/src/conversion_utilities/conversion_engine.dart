@@ -1,7 +1,10 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:blog_parser/src/conversion_utilities/element_type.dart';
 import 'package:blog_parser/src/conversion_utilities/style_values.dart';
 import 'package:html/dom.dart' as dom;
+
+typedef Text customRenderType(dynamic node, dynamic children);
 
 class HRDivider extends StatelessWidget {
   @override
@@ -19,7 +22,8 @@ class TextElement extends StatelessWidget {
   Color color;
   ElementType type;
   double fontSize;
-  String text;
+  // String text;
+  List<TextSpan> text;
   Key key;
 
   static List<ElementType> headers = [
@@ -45,7 +49,7 @@ class TextElement extends StatelessWidget {
     this.padding = defaultPadding,
     this.margin = defaultMargin,
     this.color = defaultHeaderColor,
-    this.text = '',
+    this.text = defaultText,
     this.type = ElementType.p,
     fontSize,
   }) {
@@ -53,46 +57,78 @@ class TextElement extends StatelessWidget {
     this.fontSize = fontSize ?? fontSizes[type];
   }
 
-  void buildContent(String text, int index) {
+  List<TextSpan> buildContent(String text, int index) {
+    List<TextSpan> content = [];
+    const String FINDME = '[FINDME]';
+    const String FINDME_END = '[/FINDME]';
     String temp = text;
-    List<dynamic> result = [];
-    int counter = 0;
+    List<TextSpan> result = [];
+    int indexStart;
+    int indexEnd;
 
     //replace with link
     if (index >= 0) {
-      while(temp.isNotEmpty) {
-        index = temp.indexOf('[FINDME]');
+      while (temp.isNotEmpty) {
+        indexStart = temp.indexOf(FINDME);
+        indexEnd = temp.indexOf(FINDME_END);
 
-        if (index == 0) {
-          result.add('[FINDME]');
-          temp = temp.substring('[FINDME]'.length);
-          continue;
-        } else if (index > -1) {
-          result.add(temp.substring(0, index));
-          temp = temp.substring(index);
-          continue;
-        } else {
+        if (indexStart > -1 && indexEnd > -1) {
+          if (indexStart == 0) {
+            // adding link
+            TextSpan input = TextSpan(
+              text: temp.substring(FINDME.length, indexEnd),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => print('Tapped me'),
+              style: TextStyle(
+                color: Colors.red,
+              ),
+            );
+            result.add(input);
+            temp = temp.substring(indexEnd + FINDME_END.length);
+          } else if (indexStart > 0) {
+            // Not a link
+            TextSpan input = TextSpan(
+              text: temp.substring(0, indexStart),
+              style: TextStyle(color: Colors.black),
+            );
+            result.add(input);
+            temp = temp.substring(indexStart);
+          } else if (temp.isNotEmpty) {
+            TextSpan input = TextSpan(
+              text: temp,
+              style: TextStyle(color: Colors.black),
+            );
+            result.add(input);
+            temp = '';
+          }
+        } else if (temp.isNotEmpty) {
+          TextSpan input = TextSpan(
+            text: temp,
+            style: TextStyle(color: Colors.black),
+          );
+          result.add(input);
           temp = '';
         }
       }
     }
     print(result);
+    return result;
   }
 
   Widget cloneWithText(String textIn) {
-
     int index = textIn.indexOf('[FINDME]');
-    if (index > -1) {
-      buildContent(textIn, index);
-    }
 
+    List<TextSpan> content = (index > -1
+        ? buildContent(textIn, index)
+        : <TextSpan>[TextSpan(text: textIn)]);
 
     return TextElement(
-        padding: padding,
-        margin: margin,
-        type: type,
-        fontSize: fontSize,
-        text: textIn);
+      padding: padding,
+      margin: margin,
+      type: type,
+      fontSize: fontSize,
+      text: content,
+    );
   }
 
   Widget withKey(TextElement me, String id) {
@@ -105,25 +141,20 @@ class TextElement extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         Flexible(
-          // child: Container(
-          //   padding: padding,
-          //   margin: margin,
-          //   child: RichText(
-          //     text: TextSpan(
-          //       children: <TextSpan>[
-
-          //       ],
-          //     ),
-          //   ),
-            child: Text(
-              text,
-              style: TextStyle(
-                color: color,
-                fontSize: fontSize,
+          child: Container(
+            padding: padding,
+            margin: margin,
+            child: RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: fontSize,
+                ),
+                children: text.toList(),
               ),
             ),
           ),
-        // )
+        )
       ],
     );
   }
@@ -132,13 +163,20 @@ class TextElement extends StatelessWidget {
     return Container(
       padding: padding,
       margin: margin,
-      child: Text(
-        text,
-        style: TextStyle(
-          color: color,
-          fontSize: fontSize,
+      child: RichText(
+        text: TextSpan(
+          style: TextStyle(color: Colors.black),
+          children: text.toList(),
         ),
       ),
+
+      // child: Text(
+      //   text,
+      //   style: TextStyle(
+      //     color: color,
+      //     fontSize: fontSize,
+      //   ),
+      // ),
     );
   }
 
@@ -168,8 +206,9 @@ class ConversionEngine {
   TextElement h6;
   TextElement p;
   HRDivider hr;
+  Function customRender;
 
-  ConversionEngine({this.classToRemove, h1}) {
+  ConversionEngine({this.classToRemove, this.customRender}) {
     this.h1 = h1 ?? TextElement(type: ElementType.h1);
     this.h2 = h2 ?? TextElement(type: ElementType.h2);
     this.h2 = h2 ?? TextElement(type: ElementType.h2);
@@ -234,34 +273,27 @@ class ConversionEngine {
     // });
     node.getElementsByTagName('a').forEach((link) {
       if (!link.text.contains('[FINDME]')) {
-        link.text = '[FINDME]${link.text}[FINDME]';
+        link.text = '[FINDME]${link.text}[/FINDME]';
       }
     });
     // print(node.text);
   }
 
   Widget run(dom.Node node, List<Widget> children) {
-    List<Map<Key, String>> keys;
-    // print(node);
 
+    //Run customRender first if the user has defined it.
+    if (customRender != null) {
+      return customRender(node, children);
+    }
+    
     if (node is dom.Element) {
-      // print(node.nodeType);
-      // print('node.nodeType: ${node.nodeType}');
-      // print('ELEMENT_NODE: ${dom.Node.ELEMENT_NODE}');
-      //links...
-      // if (node.children.contains(element)) {
 
-      // }
       // List<dom.Element> els = node.getElementsByTagName('a');
       // containsInternalLink(els);
-
-      // linkInterpolation(node);
-
       var image = node.querySelector('img');
       if (image != null) {
         return null;
       }
-      // print('image: $image');
 
       if (stripEmptyElements && (node.text == '\u00A0')) {
         return Container();
@@ -270,6 +302,8 @@ class ConversionEngine {
       if (classToRemove != null && node.classes.contains(classToRemove)) {
         return Container();
       }
+
+      return null;
 
       switch (node.localName) {
         case H1:

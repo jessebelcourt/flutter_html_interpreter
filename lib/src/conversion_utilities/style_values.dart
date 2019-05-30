@@ -20,5 +20,6 @@ const P_FONT_SIZE = 16.0;
 
 const EdgeInsets defaultPadding = EdgeInsets.all(0);
 const EdgeInsets defaultMargin = EdgeInsets.all(0);
+const List<TextSpan> defaultText = [TextSpan(text: '')];
 const Color defaultHeaderColor = Colors.black;
 const double defaultFontSize = P_FONT_SIZE;
