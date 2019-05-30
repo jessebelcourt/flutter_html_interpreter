@@ -5,189 +5,41 @@ import 'package:blog_parser/src/conversion_utilities/style_values.dart';
 import 'package:blog_parser/src/conversion_utilities/custom_components.dart';
 import 'package:html/dom.dart' as dom;
 
-typedef Text customRenderType(dynamic node, dynamic children);
-
-class ElementOptions {
-  EdgeInsets padding;
-  ElementOptions({this.padding});
-}
-
-class TextElement extends StatelessWidget {
-  EdgeInsets padding;
-  EdgeInsets margin;
-  Color color;
-  ElementType type;
-  double fontSize;
-  List<TextSpan> text;
-  Key key;
-  ElementOptions options;
-
-  static List<ElementType> headers = [
-    ElementType.h1,
-    ElementType.h2,
-    ElementType.h3,
-    ElementType.h4,
-    ElementType.h5,
-    ElementType.h6,
-  ];
-
-  static Map<ElementType, double> fontSizes = {
-    ElementType.h1: H1_FONT_SIZE,
-    ElementType.h2: H2_FONT_SIZE,
-    ElementType.h3: H3_FONT_SIZE,
-    ElementType.h4: H4_FONT_SIZE,
-    ElementType.h5: H5_FONT_SIZE,
-    ElementType.h6: H6_FONT_SIZE,
-    ElementType.p: P_FONT_SIZE,
-  };
-
-  TextElement({
-    this.padding = defaultPadding,
-    this.margin = defaultMargin,
-    this.color = defaultHeaderColor,
-    this.text = defaultText,
-    this.type = ElementType.p,
-    fontSize,
-    this.options,
-  }) {
-    if (options != null) {}
-
-    // set font size
-    this.fontSize = fontSize ?? fontSizes[type];
-  }
-
-  List<TextSpan> buildContent(String text, int index) {
-    List<TextSpan> content = [];
-    const String FINDME = '[FINDME]';
-    const String FINDME_END = '[/FINDME]';
-    String temp = text;
-    List<TextSpan> result = [];
-    int indexStart;
-    int indexEnd;
-
-    //replace with link
-    if (index >= 0) {
-      while (temp.isNotEmpty) {
-        indexStart = temp.indexOf(FINDME);
-        indexEnd = temp.indexOf(FINDME_END);
-
-        if (indexStart > -1 && indexEnd > -1) {
-          if (indexStart == 0) {
-            // adding link
-            TextSpan input = TextSpan(
-              text: temp.substring(FINDME.length, indexEnd),
-              recognizer: TapGestureRecognizer()
-                ..onTap = () => print('Tapped me'),
-              style: TextStyle(
-                color: Colors.red,
-              ),
-            );
-            result.add(input);
-            temp = temp.substring(indexEnd + FINDME_END.length);
-          } else if (indexStart > 0) {
-            // Not a link
-            TextSpan input = TextSpan(
-              text: temp.substring(0, indexStart),
-              style: TextStyle(color: Colors.black),
-            );
-            result.add(input);
-            temp = temp.substring(indexStart);
-          } else if (temp.isNotEmpty) {
-            TextSpan input = TextSpan(
-              text: temp,
-              style: TextStyle(color: Colors.black),
-            );
-            result.add(input);
-            temp = '';
-          }
-        } else if (temp.isNotEmpty) {
-          TextSpan input = TextSpan(
-            text: temp,
-            style: TextStyle(color: Colors.black),
-          );
-          result.add(input);
-          temp = '';
-        }
-      }
-    }
-    return result;
-  }
-
-  Widget cloneWithText(String textIn) {
-    int index = textIn.indexOf('[FINDME]');
-
-    List<TextSpan> content = (index > -1
-        ? buildContent(textIn, index)
-        : <TextSpan>[TextSpan(text: textIn)]);
-
-    return TextElement(
-      padding: padding,
-      margin: margin,
-      type: type,
-      fontSize: fontSize,
-      text: content,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Widget element;
-    if (headers.contains(type)) {
-      element = Header(
-        padding: padding,
-        margin: margin,
-        fontSize: fontSize,
-        text: text.toList(),
-      );
-    } else {
-      element = Paragraph(
-        padding: padding,
-        margin: margin,
-        fontSize: fontSize,
-        text: text.toList(),
-      );
-    }
-
-    return element;
-  }
-}
-
 class ConversionEngine {
   String classToRemove;
   bool stripEmptyElements = true;
   String domain = 'amchara.com';
 
-  ElementOptions h1Options;
-
-  TextElement h1;
-  TextElement h2;
-  TextElement h3;
-  TextElement h4;
-  TextElement h5;
-  TextElement h6;
-  TextElement p;
+  TextBasedElement h1;
+  TextBasedElement h2;
+  TextBasedElement h3;
+  TextBasedElement h4;
+  TextBasedElement h5;
+  TextBasedElement h6;
+  TextBasedElement p;
   HRDivider hr;
+
   Function customRender;
 
   ConversionEngine({
     this.classToRemove,
     this.customRender,
-    h1Options,
+    TextBasedElement h1,
+    TextBasedElement h2,
+    TextBasedElement h3,
+    TextBasedElement h4,
+    TextBasedElement h5,
+    TextBasedElement h6,
+    TextBasedElement p,
   }) {
-    print(h1Options.runtimeType == ElementOptions);
-    this.h1 = h1 ?? TextElement(type: ElementType.h1);
-    this.h2 = h2 ?? TextElement(type: ElementType.h2);
-    this.h2 = h2 ?? TextElement(type: ElementType.h2);
-    this.h3 = h3 ?? TextElement(type: ElementType.h3);
-    this.h4 = h4 ?? TextElement(type: ElementType.h4);
-    this.h5 = h5 ?? TextElement(type: ElementType.h5);
-    this.h6 = h6 ?? TextElement(type: ElementType.h6);
-    this.p = p ??
-        TextElement(
-          type: ElementType.p,
-          margin: EdgeInsets.only(top: 5, bottom: 5),
-          padding: EdgeInsets.only(top: 5, bottom: 5),
-        );
+    this.h1 = h1 ?? Header(type: ElementType.h1);
+    this.h2 = h2 ?? Header(type: ElementType.h2);
+    this.h2 = h2 ?? Header(type: ElementType.h2);
+    this.h3 = h3 ?? Header(type: ElementType.h3);
+    this.h4 = h4 ?? Header(type: ElementType.h4);
+    this.h5 = h5 ?? Header(type: ElementType.h5);
+    this.h6 = h6 ?? Header(type: ElementType.h6);
+    this.p = p ?? Paragraph(type: ElementType.p);
     this.hr = hr ?? HRDivider();
   }
 
@@ -211,42 +63,12 @@ class ConversionEngine {
     });
   }
 
-  // bool checkForPadding() {
-
-  // }
-
   void linkInterpolation(dom.Element node) {
-    // List<dom.Element> els = node.children;
-    // dom.Node newParent = node.clone(true);
-    // node.parentNode.remove();
-    // newParent.reparentChildren(null);
-    // print(newParent);
-    // dom.Element newParent = dom.Element.html(node.localName);
-    // node.reparentChildren(newParent);
-
-    // node.reparentChildren(newParent);
-    // print(newParent.text);
-    // dom.Element newParent = dom.Element();
-    // List<dom.Element> broken = node.children
-    // print(node.outerHtml);
-    // node.children.forEach((el) {
-    //   node.remove();
-    // print('localtype: ${el.localName}');
-    // print('nodeType: ${el.nodeType}');
-    // print('el.text: ${el.text}');
-    // });
-    // node.children.forEach((el) => el.remove());
-    // print(node.text);
-    // node.children.forEach((el) {
-    // print('el.text: ${el.text}');
-    // print(el.nodeType == dom.Node.TEXT_NODE);
-    // });
     node.getElementsByTagName('a').forEach((link) {
       if (!link.text.contains('[FINDME]')) {
         link.text = '[FINDME]${link.text}[/FINDME]';
       }
     });
-    // print(node.text);
   }
 
   Widget run(dom.Node node, List<Widget> children) {
@@ -270,9 +92,7 @@ class ConversionEngine {
       if (classToRemove != null && node.classes.contains(classToRemove)) {
         return Container();
       }
-
-      // return null;
-
+      
       switch (node.localName) {
         case H1:
           // TextElement clone = h1.cloneWithText(node.text);
