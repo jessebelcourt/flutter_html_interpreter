@@ -144,10 +144,13 @@ class TextBasedElement extends StatelessWidget {
       }
   }
 
-  List<TextSpan> buildContent(String text, int index) {
+  List<TextSpan> buildContent(String textIn) {
+    textIn = textIn ?? '';
+    int index = textIn.indexOf('[FINDME]');
+
     const String FINDME = '[FINDME]';
     const String FINDME_END = '[/FINDME]';
-    String temp = text;
+    String temp = textIn;
     List<TextSpan> result = [];
     int indexStart;
     int indexEnd;
@@ -188,17 +191,16 @@ class TextBasedElement extends StatelessWidget {
           temp = '';
         }
       }
+    } else {
+      return [TextSpan(text: textIn)];
     }
+
     return result;
   }
 
   Widget cloneWithText(String textIn) {
-    textIn = (textIn == '' || textIn == null ? '' : textIn);
-    int index = textIn.indexOf('[FINDME]');
-
-    List<TextSpan> content = (index > -1
-        ? buildContent(textIn, index)
-        : <TextSpan>[TextSpan(text: textIn)]);
+    List<TextSpan> content = buildContent(textIn);
+    print(content);
 
     switch (type) {
       case ElementType.h1:

@@ -44,35 +44,50 @@ class ConversionEngine {
     this.hr = hr ?? HRDivider();
   }
 
-  void containsInternalLink(List<dom.Element> elements) {
-    elements.forEach((el) {
-      if (el.attributes['href'] != null) {
-        // Uri uri = Uri.parse(el.attributes['href']);
-        // String path = uri.path;
-        int index = el.attributes['href'].indexOf('#');
-        if (index >= 0) {
-          String id = el.attributes['href'].substring(index);
-          // print(id);
-        }
-        // print('index: $index');
-      }
-      // if (el.attributes['href'] != null && el.attributes['href'].contains(domain)) {
-      //   Uri uri = Uri.parse(el.attributes['href']);
-      //   String path = uri.path;
-      //   print('path: $path');
-      // }
-    });
-  }
 
   void linkInterpolation(dom.Element node) {
     List<dom.Element> els = node.getElementsByTagName('a');
     if (els != null && els.isNotEmpty) {
       els.forEach((link) {
-        if (link.text != null && link.text != '' && !link.text.contains('[FINDME]')) {
+        if (link.text != null && link.text.isNotEmpty && !link.text.contains('[FINDME]')) {
+          String href = link.attributes['href'];
+          if (href != null && href != '') {
+
+            Uri uri = Uri.parse(href);
+            if (uri.isAbsolute) {
+              // print('href is absolute: $href');
+              // does link go to outside source?
+              if (!href.contains(domain)) {
+                // print('link goes to outside source: $href');
+                // link.text = '[FINDME_external::\{${domain}\}]${link.text}[/FINDME]';
+                String temp = '[FINDME_external::\{\{${href}\}\}]${link.text}[/FINDME]';
+                // print('extenal link: ${temp}');
+              }
+            } 
+            // is link internal?
+              // link.text = '[FINDME]${link.text}[/FINDME]';
+            // if (href.contains(domain)) {
+            //   print('link is internal: $href');
+            // }
+
+            // is the link internal?
+            // int index = href.indexOf('#');
+            // if (index >= 0) {
+            //   String id = href.substring(index);
+            //   print('link is internal: $id');
+            // }
+            // is link external?
+            
+
+            // print('href: ${link.attributes['href']}');
+            // link.text = '[FINDME]${link.text}[/FINDME]';
+          }
+          
           link.text = '[FINDME]${link.text}[/FINDME]';
         }
       });
     }
+    // print('node.text: ${node.text}');
   }
 
   Widget run(dom.Node node, List<Widget> children) {
@@ -91,7 +106,7 @@ class ConversionEngine {
 
       //Check for ID's
       if (node.id != '') {
-        print('id: ${node.id}');
+        // print('id: ${node.id}');
       }
 
       if (stripEmptyElements && (node.text == '\u00A0')) {
@@ -127,9 +142,9 @@ class ConversionEngine {
           linkInterpolation(node);
           return h6.cloneWithText(node.text);
 
-        // case P:
-        //   linkInterpolation(node);
-        //   return p.cloneWithText(node.text.replaceAll('\u00A0', ''));
+        case P:
+          linkInterpolation(node);
+          return p.cloneWithText(node.text.replaceAll('\u00A0', ''));
 
         case HR:
           return HRDivider();
