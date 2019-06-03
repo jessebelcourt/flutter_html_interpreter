@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:blog_parser/src/conversion_utilities/style_values.dart';
 import 'package:blog_parser/src/conversion_utilities/element_type.dart';
 import 'package:flutter/gestures.dart';
+import 'package:blog_parser/src/conversion_utilities/link_map.dart';
+
 
 class HRDivider extends StatelessWidget {
   @override
@@ -103,6 +105,7 @@ class TextBasedElement extends StatelessWidget {
   final EdgeInsets defaultParPadding = EdgeInsets.all(0);
   final EdgeInsets defaultParMargin = EdgeInsets.only(top: 5, bottom: 5);
 
+  LinkMap linkMap = LinkMap();
   EdgeInsets padding;
   EdgeInsets margin;
   List<TextSpan> text;
@@ -146,9 +149,28 @@ class TextBasedElement extends StatelessWidget {
 
   List<TextSpan> buildContent(String textIn) {
     textIn = textIn ?? '';
-    int index = textIn.indexOf('[FINDME]');
+    RegExp re = RegExp(r'\[FINDME_ID_(.*)_ENDID_\]');
+    Match test = re.firstMatch(textIn);
+    // if (test != null) {
+    //   if (textIn.indexOf(re) > -1) {
+    //     print('indexOf: ${textIn.indexOf(re)}');
+    //     print('group 1: ${test.group(1)}');
+    //     print('og text: $textIn');
+    //   }
+
+    // }
+    // if (test != null) {
+    //   // print(test);
+    //   test.forEach((t) {
+    //     print(t.group(1));
+    //   });
+      
+    // }
+
 
     const String FINDME = '[FINDME]';
+    String findMe;
+
     const String FINDME_END = '[/FINDME]';
     String temp = textIn;
     List<TextSpan> result = [];
@@ -156,17 +178,29 @@ class TextBasedElement extends StatelessWidget {
     int indexEnd;
 
     //replace with link
-    if (index >= 0) {
+    // if (index >= 0) {
+    if (re.hasMatch(temp)) {
       while (temp.isNotEmpty) {
-        indexStart = temp.indexOf(FINDME);
+
+        Match m = re.firstMatch(temp);
+        String tag = m.group(0);
+        print('og string: $temp');
+        print('tag $tag');
+        indexStart = temp.indexOf(tag);
         indexEnd = temp.indexOf(FINDME_END);
         TextSpan input;
 
         if (indexStart > -1 && indexEnd > -1) {
+          Match match = re.firstMatch(temp);
+          print('index start: $indexStart');
+          print('index end: $indexEnd');
+          findMe = match.group(0);
+
           if (indexStart == 0) {
             // adding link
+            // print(temp.substring(findMe.length, indexEnd));
             input = TextSpan(
-              text: temp.substring(FINDME.length, indexEnd),
+              text: temp.substring(findMe.length, indexEnd),
               recognizer: TapGestureRecognizer()
                 ..onTap = () => print('Tapped me'),
               style: TextStyle(
@@ -200,7 +234,6 @@ class TextBasedElement extends StatelessWidget {
 
   Widget cloneWithText(String textIn) {
     List<TextSpan> content = buildContent(textIn);
-    print(content);
 
     switch (type) {
       case ElementType.h1:

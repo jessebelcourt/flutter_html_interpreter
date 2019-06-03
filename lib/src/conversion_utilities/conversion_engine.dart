@@ -3,11 +3,16 @@ import 'package:blog_parser/src/conversion_utilities/element_type.dart';
 import 'package:blog_parser/src/conversion_utilities/style_values.dart';
 import 'package:blog_parser/src/conversion_utilities/custom_components.dart';
 import 'package:html/dom.dart' as dom;
+import 'package:blog_parser/src/conversion_utilities/link_map.dart';
+import 'package:uuid/uuid.dart';
+import 'package:uuid/uuid_util.dart';
 
 class ConversionEngine {
   String classToRemove;
   bool stripEmptyElements = true;
   String domain;
+  LinkMap linkMap = LinkMap();
+  Uuid uuid = Uuid();
 
   TextBasedElement h1;
   TextBasedElement h2;
@@ -49,21 +54,30 @@ class ConversionEngine {
     List<dom.Element> els = node.getElementsByTagName('a');
     if (els != null && els.isNotEmpty) {
       els.forEach((link) {
-        if (link.text != null && link.text.isNotEmpty && !link.text.contains('[FINDME]')) {
+        if (link.text != null && link.text.isNotEmpty && !link.text.contains(RegExp('\[FINDME_ID_{{(?<href>.*)}}_ENDID_\]'))) {
           String href = link.attributes['href'];
           if (href != null && href != '') {
-
+            String id = uuid.v5(Uuid.NAMESPACE_URL, href);
             Uri uri = Uri.parse(href);
             if (uri.isAbsolute) {
-              // print('href is absolute: $href');
               // does link go to outside source?
               if (!href.contains(domain)) {
-                // print('link goes to outside source: $href');
-                // link.text = '[FINDME_external::\{${domain}\}]${link.text}[/FINDME]';
-                String temp = '[FINDME_external::\{\{${href}\}\}]${link.text}[/FINDME]';
+                linkMap.links[id] = {
+                  'href': href,
+                  'type': 'external',
+                };
                 // print('extenal link: ${temp}');
               }
-            } 
+            } else {
+              linkMap.links[id] = {
+                  'href': href,
+                  'type': 'general',
+                };
+            }
+            // link.text = '[FINDME]${link.text}[/FINDME]';
+
+            
+            link.text = '[FINDME_ID_${id}_ENDID_]${link.text}[/FINDME]';
             // is link internal?
               // link.text = '[FINDME]${link.text}[/FINDME]';
             // if (href.contains(domain)) {
@@ -83,7 +97,7 @@ class ConversionEngine {
             // link.text = '[FINDME]${link.text}[/FINDME]';
           }
           
-          link.text = '[FINDME]${link.text}[/FINDME]';
+          // link.text = '[FINDME]${link.text}[/FINDME]';
         }
       });
     }
