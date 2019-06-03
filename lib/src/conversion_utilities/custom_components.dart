@@ -108,6 +108,11 @@ class TextBasedElement extends StatelessWidget {
   List<TextSpan> text;
   double fontSize;
   ElementType type;
+  TextStyle linkStyle;
+  TextStyle defaultLinkStyle = TextStyle(
+    color: Colors.blue,
+    decoration: TextDecoration.underline,
+  );
 
   TextBasedElement({
     EdgeInsets padding,
@@ -129,9 +134,6 @@ class TextBasedElement extends StatelessWidget {
       }
 
       if (fontSize != null) {
-        // if (fontSize.runtimeType == int) {
-        //   double.parse(fontSize);
-        // }
         this.fontSize = fontSize;
       }
 
@@ -140,8 +142,6 @@ class TextBasedElement extends StatelessWidget {
       } else {
         this.text = text;
       }
-
-      // this.text = text ?? List<TextSpan>[TextSpan(text: '')];
   }
 
   List<TextSpan> buildContent(String text, int index) {
@@ -157,11 +157,12 @@ class TextBasedElement extends StatelessWidget {
       while (temp.isNotEmpty) {
         indexStart = temp.indexOf(FINDME);
         indexEnd = temp.indexOf(FINDME_END);
+        TextSpan input;
 
         if (indexStart > -1 && indexEnd > -1) {
           if (indexStart == 0) {
             // adding link
-            TextSpan input = TextSpan(
+            input = TextSpan(
               text: temp.substring(FINDME.length, indexEnd),
               recognizer: TapGestureRecognizer()
                 ..onTap = () => print('Tapped me'),
@@ -173,25 +174,16 @@ class TextBasedElement extends StatelessWidget {
             temp = temp.substring(indexEnd + FINDME_END.length);
           } else if (indexStart > 0) {
             // Not a link
-            TextSpan input = TextSpan(
-              text: temp.substring(0, indexStart),
-              style: TextStyle(color: Colors.black),
-            );
+            input = TextSpan(text: temp.substring(0, indexStart));
             result.add(input);
             temp = temp.substring(indexStart);
           } else if (temp.isNotEmpty) {
-            TextSpan input = TextSpan(
-              text: temp,
-              style: TextStyle(color: Colors.black),
-            );
+            input = TextSpan(text: temp);
             result.add(input);
             temp = '';
           }
         } else if (temp.isNotEmpty) {
-          TextSpan input = TextSpan(
-            text: temp,
-            style: TextStyle(color: Colors.black),
-          );
+          input = TextSpan(text: temp);
           result.add(input);
           temp = '';
         }
@@ -201,6 +193,7 @@ class TextBasedElement extends StatelessWidget {
   }
 
   Widget cloneWithText(String textIn) {
+    textIn = (textIn == '' || textIn == null ? '' : textIn);
     int index = textIn.indexOf('[FINDME]');
 
     List<TextSpan> content = (index > -1

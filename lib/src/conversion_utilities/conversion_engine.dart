@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:blog_parser/src/conversion_utilities/element_type.dart';
 import 'package:blog_parser/src/conversion_utilities/style_values.dart';
@@ -18,6 +17,7 @@ class ConversionEngine {
   TextBasedElement h6;
   TextBasedElement p;
   HRDivider hr;
+  TextStyle defaultLinkStyle;
 
   Function customRender;
 
@@ -65,11 +65,14 @@ class ConversionEngine {
   }
 
   void linkInterpolation(dom.Element node) {
-    node.getElementsByTagName('a').forEach((link) {
-      if (!link.text.contains('[FINDME]')) {
-        link.text = '[FINDME]${link.text}[/FINDME]';
-      }
-    });
+    List<dom.Element> els = node.getElementsByTagName('a');
+    if (els != null && els.isNotEmpty) {
+      els.forEach((link) {
+        if (link.text != null && link.text != '' && !link.text.contains('[FINDME]')) {
+          link.text = '[FINDME]${link.text}[/FINDME]';
+        }
+      });
+    }
   }
 
   Widget run(dom.Node node, List<Widget> children) {
@@ -86,6 +89,11 @@ class ConversionEngine {
         return null;
       }
 
+      //Check for ID's
+      if (node.id != '') {
+        print('id: ${node.id}');
+      }
+
       if (stripEmptyElements && (node.text == '\u00A0')) {
         return Container();
       }
@@ -98,25 +106,30 @@ class ConversionEngine {
         case H1:
           linkInterpolation(node);
           return h1.cloneWithText(node.text);
-          break;
 
         case H2:
+          linkInterpolation(node);
           return h2.cloneWithText(node.text);
 
         case H3:
+          linkInterpolation(node);
           return h3.cloneWithText(node.text);
 
         case H4:
+          linkInterpolation(node);
           return h4.cloneWithText(node.text);
 
         case H5:
+          linkInterpolation(node);
           return h5.cloneWithText(node.text);
 
         case H6:
+          linkInterpolation(node);
           return h6.cloneWithText(node.text);
 
-        case P:
-          return p.cloneWithText(node.text.replaceAll('\u00A0', ''));
+        // case P:
+        //   linkInterpolation(node);
+        //   return p.cloneWithText(node.text.replaceAll('\u00A0', ''));
 
         case HR:
           return HRDivider();
