@@ -54,8 +54,9 @@ class ConversionEngine {
     List<dom.Element> els = node.getElementsByTagName('a');
     if (els != null && els.isNotEmpty) {
       els.forEach((link) {
-        if (link.text != null && link.text.isNotEmpty && !link.text.contains(RegExp('\[FINDME_ID_{{(?<href>.*)}}_ENDID_\]'))) {
-          String href = link.attributes['href'];
+        if (link.text != null && link.text.isNotEmpty && !link.text.contains(RegExp(r'\[FINDME_ID_(.*)_ENDID_\]'))) {
+          // print(link.attributes);
+          String href = (link.attributes.isNotEmpty ? link.attributes['href'] : null);
           if (href != null && href != '') {
             String id = uuid.v5(Uuid.NAMESPACE_URL, href);
             Uri uri = Uri.parse(href);
@@ -66,7 +67,11 @@ class ConversionEngine {
                   'href': href,
                   'type': 'external',
                 };
-                // print('extenal link: ${temp}');
+              } else {
+                linkMap.links[id] = {
+                  'href': href,
+                  'type': 'internal',
+                };
               }
             } else {
               linkMap.links[id] = {
@@ -74,34 +79,12 @@ class ConversionEngine {
                   'type': 'general',
                 };
             }
-            // link.text = '[FINDME]${link.text}[/FINDME]';
-
-            
             link.text = '[FINDME_ID_${id}_ENDID_]${link.text}[/FINDME]';
-            // is link internal?
-              // link.text = '[FINDME]${link.text}[/FINDME]';
-            // if (href.contains(domain)) {
-            //   print('link is internal: $href');
-            // }
-
-            // is the link internal?
-            // int index = href.indexOf('#');
-            // if (index >= 0) {
-            //   String id = href.substring(index);
-            //   print('link is internal: $id');
-            // }
-            // is link external?
-            
-
-            // print('href: ${link.attributes['href']}');
-            // link.text = '[FINDME]${link.text}[/FINDME]';
           }
           
-          // link.text = '[FINDME]${link.text}[/FINDME]';
         }
       });
     }
-    // print('node.text: ${node.text}');
   }
 
   Widget run(dom.Node node, List<Widget> children) {
@@ -111,8 +94,6 @@ class ConversionEngine {
     }
 
     if (node is dom.Element) {
-      // List<dom.Element> els = node.getElementsByTagName('a');
-      // containsInternalLink(els);
       var image = node.querySelector('img');
       if (image != null) {
         return null;

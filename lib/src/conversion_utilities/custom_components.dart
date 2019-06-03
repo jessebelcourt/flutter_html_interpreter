@@ -149,26 +149,7 @@ class TextBasedElement extends StatelessWidget {
 
   List<TextSpan> buildContent(String textIn) {
     textIn = textIn ?? '';
-    RegExp re = RegExp(r'\[FINDME_ID_(.*)_ENDID_\]');
-    Match test = re.firstMatch(textIn);
-    // if (test != null) {
-    //   if (textIn.indexOf(re) > -1) {
-    //     print('indexOf: ${textIn.indexOf(re)}');
-    //     print('group 1: ${test.group(1)}');
-    //     print('og text: $textIn');
-    //   }
-
-    // }
-    // if (test != null) {
-    //   // print(test);
-    //   test.forEach((t) {
-    //     print(t.group(1));
-    //   });
-      
-    // }
-
-
-    const String FINDME = '[FINDME]';
+    RegExp re = RegExp(r'\[FINDME_ID_(.*?)_ENDID_\]');
     String findMe;
 
     const String FINDME_END = '[/FINDME]';
@@ -177,32 +158,25 @@ class TextBasedElement extends StatelessWidget {
     int indexStart;
     int indexEnd;
 
-    //replace with link
-    // if (index >= 0) {
     if (re.hasMatch(temp)) {
       while (temp.isNotEmpty) {
-
         Match m = re.firstMatch(temp);
-        String tag = m.group(0);
-        print('og string: $temp');
-        print('tag $tag');
-        indexStart = temp.indexOf(tag);
+        String tag = (m != null ? m.group(0) : null) ;
+        indexStart = (tag != null ? temp.indexOf(tag) : -1);
         indexEnd = temp.indexOf(FINDME_END);
         TextSpan input;
 
         if (indexStart > -1 && indexEnd > -1) {
           Match match = re.firstMatch(temp);
-          print('index start: $indexStart');
-          print('index end: $indexEnd');
           findMe = match.group(0);
+          String id = match.group(1);
 
           if (indexStart == 0) {
             // adding link
-            // print(temp.substring(findMe.length, indexEnd));
             input = TextSpan(
               text: temp.substring(findMe.length, indexEnd),
               recognizer: TapGestureRecognizer()
-                ..onTap = () => print('Tapped me'),
+                ..onTap = () => print(linkMap.links[id]),
               style: TextStyle(
                 color: Colors.red,
               ),
