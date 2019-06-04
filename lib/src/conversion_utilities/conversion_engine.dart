@@ -135,7 +135,9 @@ class ConversionEngine {
               }
 
               linkMap.links[id]['to_id'] = uri.fragment;
-              link.text = '[FINDME_ID_${id}_ENDID_]${link.text}[/FINDME]';
+              linkMap.links[id]['link_text'] = link.text;
+              // link.text = '[FINDME_ID_${id}_ENDID_]${link.text}[/FINDME]';
+              link.text = '[FINDME_ID_${id}_ENDID_]';
             }
           }
         });

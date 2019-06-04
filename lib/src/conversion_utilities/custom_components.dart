@@ -218,22 +218,18 @@ mixin TextElementStateMixin {
     textIn = textIn ?? '';
     RegExp re = RegExp(r'\[FINDME_ID_(.*?)_ENDID_\]');
     String findMe;
-
-    const String FINDME_END = '[/FINDME]';
     String temp = textIn;
     List<TextSpan> result = [];
     int indexStart;
-    int indexEnd;
 
     if (re.hasMatch(temp)) {
       while (temp.isNotEmpty) {
         Match m = re.firstMatch(temp);
         String tag = (m != null ? m.group(0) : null);
         indexStart = (tag != null ? temp.indexOf(tag) : -1);
-        indexEnd = temp.indexOf(FINDME_END);
         TextSpan input;
 
-        if (indexStart > -1 && indexEnd > -1) {
+        if (indexStart > -1) {
           Match match = re.firstMatch(temp);
           findMe = match.group(0);
           String id = match.group(1);
@@ -241,7 +237,7 @@ mixin TextElementStateMixin {
           if (indexStart == 0) {
             // adding link
             input = TextSpan(
-              text: temp.substring(findMe.length, indexEnd),
+              text: linkMap.links[id]['link_text'],
               recognizer: TapGestureRecognizer()
                 ..onTap = () {
                   handleLinkClick(id);
@@ -251,7 +247,7 @@ mixin TextElementStateMixin {
               ),
             );
             result.add(input);
-            temp = temp.substring(indexEnd + FINDME_END.length);
+            temp = temp.substring(findMe.length);
           } else if (indexStart > 0) {
             // Not a link
             input = TextSpan(text: temp.substring(0, indexStart));
