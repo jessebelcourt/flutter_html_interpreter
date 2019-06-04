@@ -62,9 +62,15 @@ class Header extends StatefulWidget {
 }
 
 class _HeaderState extends State<Header> with TextElementStateMixin {
+  ElementType defaultElementType = ElementType.h1;
+  double defaultFontSize = H1_FONT_SIZE;
+
   @override
   void initState() {
     super.initState();
+    if (type != null) {
+      fontSize = defaultFontSizes[type];
+    }
     padding = widget.padding ?? defaultPadding;
     margin = widget.margin ?? defaultMargin;
     fontSize = widget.fontSize ?? defaultFontSize;
@@ -72,6 +78,7 @@ class _HeaderState extends State<Header> with TextElementStateMixin {
     type = widget.type ?? defaultElementType;
     text = widget.text ?? '';
     index = widget.index ?? index;
+    
     if (index.isNotEmpty && index != null) {
       _key = GlobalKey();
       idMap.ids[index] = _key;
@@ -141,6 +148,16 @@ class ParagraphState extends State<Paragraph> with TextElementStateMixin {
 }
 
 mixin TextElementStateMixin {
+  Map<ElementType, double> defaultFontSizes = {
+    ElementType.h1: H1_FONT_SIZE,
+    ElementType.h2: H2_FONT_SIZE,
+    ElementType.h3: H3_FONT_SIZE,
+    ElementType.h4: H4_FONT_SIZE,
+    ElementType.h5: H5_FONT_SIZE,
+    ElementType.h6: H6_FONT_SIZE,
+    ElementType.p: P_FONT_SIZE,
+  };
+
   IDMap idMap = IDMap();
   LinkMap linkMap = LinkMap();
   String index;
@@ -157,6 +174,7 @@ mixin TextElementStateMixin {
   Color defaultColor = Colors.black;
   double defaultFontSize = P_FONT_SIZE;
   ElementType defaultElementType = ElementType.p;
+
   List<TextSpan> buildContent(String textIn, BuildContext context) {
     textIn = textIn ?? '';
     RegExp re = RegExp(r'\[FINDME_ID_(.*?)_ENDID_\]');

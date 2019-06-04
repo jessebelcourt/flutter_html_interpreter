@@ -17,12 +17,12 @@ class ConversionEngine {
   Uuid uuid = Uuid();
   BuildContext context;
 
-  // TextBasedElement h1;
-  // TextBasedElement h2;
-  // TextBasedElement h3;
-  // TextBasedElement h4;
-  // TextBasedElement h5;
-  // TextBasedElement h6;
+  Header h1;
+  Header h2;
+  Header h3;
+  Header h4;
+  Header h5;
+  Header h6;
   Paragraph p;
   HRDivider hr;
   TextStyle defaultLinkStyle;
@@ -34,21 +34,21 @@ class ConversionEngine {
     this.customRender,
     this.domain,
     this.context,
-    // TextBasedElement h1,
-    // TextBasedElement h2,
-    // TextBasedElement h3,
-    // TextBasedElement h4,
-    // TextBasedElement h5,
-    // TextBasedElement h6,
+    Header h1,
+    Header h2,
+    Header h3,
+    Header h4,
+    Header h5,
+    Header h6,
     Paragraph p,
   }) {
-    // this.h1 = h1 ?? Header(type: ElementType.h1);
-    // this.h2 = h2 ?? Header(type: ElementType.h2);
-    // this.h2 = h2 ?? Header(type: ElementType.h2);
-    // this.h3 = h3 ?? Header(type: ElementType.h3);
-    // this.h4 = h4 ?? Header(type: ElementType.h4);
-    // this.h5 = h5 ?? Header(type: ElementType.h5);
-    // this.h6 = h6 ?? Header(type: ElementType.h6);
+    this.h1 = h1 ?? Header(type: ElementType.h1);
+    this.h2 = h2 ?? Header(type: ElementType.h2);
+    this.h2 = h2 ?? Header(type: ElementType.h2);
+    this.h3 = h3 ?? Header(type: ElementType.h3);
+    this.h4 = h4 ?? Header(type: ElementType.h4);
+    this.h5 = h5 ?? Header(type: ElementType.h5);
+    this.h6 = h6 ?? Header(type: ElementType.h6);
     this.p = p ?? Paragraph();
     this.hr = hr ?? HRDivider();
   }
@@ -107,12 +107,28 @@ class ConversionEngine {
 
   Widget copyWidgetWithText(dynamic inWidget, String text, [ String index ]){
     switch(inWidget.type) {
+      case ElementType.h1:
+      case ElementType.h2:
+      case ElementType.h3:
+      case ElementType.h4:
+      case ElementType.h5:
+      case ElementType.h6:
+        return Header(
+          padding: inWidget.padding,
+          margin: inWidget.margin,
+          color: inWidget.color,
+          fontSize: inWidget.fontSize,
+          type: inWidget.type,
+          text: text,
+          index: index,
+        );
       case ElementType.p:
         return Paragraph(
           padding: inWidget.padding,
           margin: inWidget.margin,
           color: inWidget.color,
           fontSize: inWidget.fontSize,
+          type: inWidget.type,
           text: text,
           index: index,
         );
@@ -122,6 +138,7 @@ class ConversionEngine {
           margin: inWidget.margin,
           color: inWidget.color,
           fontSize: inWidget.fontSize,
+          type: inWidget.type,
           text: text,
           index: index,
         );
@@ -149,47 +166,29 @@ class ConversionEngine {
       }
 
       switch (node.localName) {
-        // case H1:
-          // Key key;
-          // key = containsId(node);
-          // return h1.cloneWithText(node.text, key);
-          // print(p.fontSize);
-          // var {...p} = p;
-          // print(p.)
-          // Paragraph2 p2 = Paragraph2({...p});
-          
-          // linkInterpolation(node);
-          // return copyWidgetWithText(p, node.text, node.id);
+        case H1:
+          linkInterpolation(node);
+          return copyWidgetWithText(h1, node.text, node.id);
 
-          // return p;
-          // return ;
-          // return Paragraph2()..;
+        case H2:
+          linkInterpolation(node);
+          return copyWidgetWithText(h2, node.text, node.id);
 
-        // case H2:
-        //   linkInterpolation(node);
-        //   Key key;
-        //   // key = containsId(node);
-        //   return h2.cloneWithText(node.text, key);
+        case H3:
+          linkInterpolation(node);
+          return copyWidgetWithText(h3, node.text, node.id);
 
-        // case H3:
-        //   Key key;
-        //   linkInterpolation(node);
-        //   return h3.cloneWithText(node.text, key);
+        case H4:
+          linkInterpolation(node);
+          return copyWidgetWithText(h4, node.text, node.id);
 
-        // case H4:
-        //   Key key;
-        //   linkInterpolation(node);
-        //   return h4.cloneWithText(node.text, key);
+        case H5:
+          linkInterpolation(node);
+          return copyWidgetWithText(h5, node.text, node.id);
 
-        // case H5:
-        //   Key key;
-        //   linkInterpolation(node);
-        //   return h5.cloneWithText(node.text, key);
-
-        // case H6:
-        //   Key key;
-        //   linkInterpolation(node);
-        //   return h6.cloneWithText(node.text, key);
+        case H6:
+          linkInterpolation(node);
+          return copyWidgetWithText(h6, node.text, node.id);
 
         case P:
           linkInterpolation(node);
