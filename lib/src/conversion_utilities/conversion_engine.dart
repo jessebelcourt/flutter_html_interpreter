@@ -23,7 +23,7 @@ class ConversionEngine {
   TextBasedElement h4;
   TextBasedElement h5;
   TextBasedElement h6;
-  Paragraph p;
+  Paragraph2 p;
   HRDivider hr;
   TextStyle defaultLinkStyle;
 
@@ -40,7 +40,7 @@ class ConversionEngine {
     TextBasedElement h4,
     TextBasedElement h5,
     TextBasedElement h6,
-    Paragraph p,
+    Paragraph2 p,
   }) {
     this.h1 = h1 ?? Header(type: ElementType.h1);
     this.h2 = h2 ?? Header(type: ElementType.h2);
@@ -49,16 +49,8 @@ class ConversionEngine {
     this.h4 = h4 ?? Header(type: ElementType.h4);
     this.h5 = h5 ?? Header(type: ElementType.h5);
     this.h6 = h6 ?? Header(type: ElementType.h6);
-    this.p = p ?? Paragraph(type: ElementType.p);
+    this.p = p ?? Paragraph2();
     this.hr = hr ?? HRDivider();
-  }
-
-  Key containsId(dom.Element node){
-    if (node.id.isNotEmpty) {
-      Key key = Key(node.id);
-      idMap.ids[node.id] = key;
-      return key;
-    }
   }
 
   void setContext(BuildContext context) {
@@ -113,6 +105,29 @@ class ConversionEngine {
     }
   }
 
+  Widget copyWidgetWithText(dynamic inWidget, String text, [ String index ]){
+    switch(inWidget.type) {
+      case ElementType.p:
+        return Paragraph2(
+          padding: inWidget.padding,
+          margin: inWidget.margin,
+          color: inWidget.color,
+          fontSize: inWidget.fontSize,
+          text: text,
+          index: index,
+        );
+      default:
+        return Paragraph2(
+          padding: inWidget.padding,
+          margin: inWidget.margin,
+          color: inWidget.color,
+          fontSize: inWidget.fontSize,
+          text: text,
+          index: index,
+        );
+    }
+  }
+
   Widget run(dom.Node node, List<Widget> children) {
     //Run customRender first if the user has defined it.
     if (customRender != null) {
@@ -135,10 +150,20 @@ class ConversionEngine {
 
       switch (node.localName) {
         case H1:
+          // Key key;
+          // key = containsId(node);
+          // return h1.cloneWithText(node.text, key);
+          // print(p.fontSize);
+          // var {...p} = p;
+          // print(p.)
+          // Paragraph2 p2 = Paragraph2({...p});
+          
           linkInterpolation(node);
-          Key key;
-          key = containsId(node);
-          return h1.cloneWithText(node.text, key);
+          return copyWidgetWithText(p, node.text, node.id);
+
+          // return p;
+          // return ;
+          // return Paragraph2()..;
 
         case H2:
           linkInterpolation(node);
@@ -167,9 +192,10 @@ class ConversionEngine {
           return h6.cloneWithText(node.text, key);
 
         case P:
-          Key key;
-          linkInterpolation(node);
-          return p.cloneWithText(node.text.replaceAll('\u00A0', ''), key);
+          // Key key;
+          // linkInterpolation(node);
+          // return p.cloneWithText(node.text.replaceAll('\u00A0', ''), key);
+          return Text('paragraph text');
 
         case HR:
           return HRDivider();

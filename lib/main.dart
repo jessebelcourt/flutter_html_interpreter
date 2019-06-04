@@ -12,9 +12,24 @@ class ArticleViewApp extends StatefulWidget {
 }
 
 class _ArticleViewAppState extends State<ArticleViewApp> {
+
+  ScrollController controller = ScrollController();
+
+  void _goToElement(double offset) {
+
+    Duration duration = Duration(milliseconds: 100);
+    controller.animateTo(offset, duration: duration, curve: Curves.easeOut);
+  }
+  
   ConversionEngine engine = ConversionEngine(
     classToRemove: 'hideme',
     domain: 'amchara.com',
+    p: Paragraph2(
+      color: Colors.red,
+      fontSize: 50,
+      padding: EdgeInsets.all(25),
+      text: 'some text here',
+    ),
     // customRender: (node, children) {
     //   if (node is dom.Element) {
     //     if (node.localName == 'h1') {
@@ -28,6 +43,7 @@ class _ArticleViewAppState extends State<ArticleViewApp> {
     engine.setContext(context);
 
     return SingleChildScrollView(
+      controller: controller,
       child: Html(
         data: rawString ?? '',
         useRichText: false,
