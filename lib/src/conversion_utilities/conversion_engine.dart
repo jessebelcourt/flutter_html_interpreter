@@ -60,6 +60,8 @@ class ConversionEngine {
   IDMap idMap = IDMap();
   Uuid uuid = Uuid();
   BuildContext context;
+  bool samePageLinking = false;
+  bool disableLinks = false;
 
   Header h1;
   Header h2;
@@ -98,45 +100,46 @@ class ConversionEngine {
   }
 
   void linkInterpolation(dom.Element node) {
-    List<dom.Element> els = node.getElementsByTagName('a');
-    if (els != null && els.isNotEmpty) {
-      els.forEach((link) {
-        if (link.text != null && link.text.isNotEmpty && !link.text.contains(RegExp(r'\[FINDME_ID_(.*)_ENDID_\]'))) {
-          // print(link.attributes);
-          String href = (link.attributes.isNotEmpty ? link.attributes['href'] : null);
-          if (href != null && href != '') {
-            String id = uuid.v5(Uuid.NAMESPACE_URL, href);
-            Uri uri = Uri.parse(href);
-            // absolute links
-            if (uri.isAbsolute) {
-              // does link go to outside source?
-              if (!href.contains(domain)) {
-                linkMap.links[id] = {
-                  'href': href,
-                  'type': 'external',
-                  'url_type': 'absolute',
-                };
+    if (!disableLinks) {
+      List<dom.Element> els = node.getElementsByTagName('a');
+      if (els != null && els.isNotEmpty) {
+        els.forEach((link) {
+          if (link.text != null && link.text.isNotEmpty && !link.text.contains(RegExp(r'\[FINDME_ID_(.*)_ENDID_\]'))) {
+            // print(link.attributes);
+            String href = (link.attributes.isNotEmpty ? link.attributes['href'] : null);
+            if (href != null && href != '') {
+              String id = uuid.v5(Uuid.NAMESPACE_URL, href);
+              Uri uri = Uri.parse(href);
+              // absolute links
+              if (uri.isAbsolute) {
+                // does link go to outside source?
+                if (!href.contains(domain)) {
+                  linkMap.links[id] = {
+                    'href': href,
+                    'type': 'external',
+                    'url_type': 'absolute',
+                  };
+                } else {
+                  linkMap.links[id] = {
+                    'href': href,
+                    'type': 'internal',
+                    'url_type': 'absolute',
+                  };
+                }
               } else {
                 linkMap.links[id] = {
-                  'href': href,
-                  'type': 'internal',
-                  'url_type': 'absolute',
-                };
+                    'href': href,
+                    'type': 'internal',
+                    'url_type': 'relative',
+                  };
               }
-            } else {
-              //
-              linkMap.links[id] = {
-                  'href': href,
-                  'type': 'internal',
-                  'url_type': 'relative',
-                };
-            }
 
-            linkMap.links[id]['to_id'] = uri.fragment;
-            link.text = '[FINDME_ID_${id}_ENDID_]${link.text}[/FINDME]';
+              linkMap.links[id]['to_id'] = uri.fragment;
+              link.text = '[FINDME_ID_${id}_ENDID_]${link.text}[/FINDME]';
+            }
           }
-        }
-      });
+        });
+      }
     }
   }
 

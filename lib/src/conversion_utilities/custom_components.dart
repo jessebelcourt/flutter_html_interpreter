@@ -6,6 +6,8 @@ import 'package:flutter/gestures.dart';
 import 'package:blog_parser/src/conversion_utilities/link_map.dart';
 import 'package:blog_parser/src/conversion_utilities/id_map.dart';
 import 'package:blog_parser/src/conversion_utilities/bus.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:async';
 
 class HRDivider extends StatelessWidget {
   @override
@@ -159,6 +161,41 @@ mixin TextElementStateMixin {
     ElementType.p: P_FONT_SIZE,
   };
 
+  void handleLinkClick(String id) {
+    if (id != null && id.isNotEmpty) {
+      Map<String, String> link = linkMap.links[id];
+      
+      if (link['type'] == 'external') {
+        handleExternalLink(link['href']);
+      }
+
+      GlobalKey destinationKey;
+      idMap.ids.keys.forEach((key) {
+        if (key == link['to_id']) {
+          destinationKey = idMap.ids[key];
+        }
+      });
+
+      if (destinationKey != null) {
+        final RenderBox renderbox = destinationKey.currentContext.findRenderObject();
+        final position = renderbox.localToGlobal(Offset.zero);
+        print('position of $destinationKey: $position');
+        print(position.dy);
+        bus.screenPosition.add(position.dy);
+      }
+
+    }
+  }
+
+  void handleExternalLink(String url) async {
+    print('url: $url');
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   IDMap idMap = IDMap();
   LinkMap linkMap = LinkMap();
   Bus bus = Bus();
@@ -207,23 +244,8 @@ mixin TextElementStateMixin {
               text: temp.substring(findMe.length, indexEnd),
               recognizer: TapGestureRecognizer()
                 ..onTap = () {
-                  Map<String, String> link = linkMap.links[id];
-                  GlobalKey destinationKey;
-
-                  idMap.ids.keys.forEach((key) {
-                    if (key == link['to_id']) {
-                      destinationKey = idMap.ids[key];
-                    }
-                  });
-
-                  final RenderBox renderbox =
-                      destinationKey.currentContext.findRenderObject();
-                  final position = renderbox.localToGlobal(Offset.zero);
-                  print('position of $destinationKey: $position');
-                  print(position.dy);
-                  bus.screenPosition.add(position.dy);
+                  handleLinkClick(id);
                 },
-              // ..onTap = () => print(linkMap.links[id]),
               style: TextStyle(
                 color: Colors.red,
               ),
