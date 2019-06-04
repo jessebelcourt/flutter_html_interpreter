@@ -5,6 +5,7 @@ import 'package:blog_parser/src/conversion_utilities/element_type.dart';
 import 'package:flutter/gestures.dart';
 import 'package:blog_parser/src/conversion_utilities/link_map.dart';
 import 'package:blog_parser/src/conversion_utilities/id_map.dart';
+import 'package:blog_parser/src/conversion_utilities/bus.dart';
 
 class HRDivider extends StatelessWidget {
   @override
@@ -78,7 +79,7 @@ class _HeaderState extends State<Header> with TextElementStateMixin {
     type = widget.type ?? defaultElementType;
     text = widget.text ?? '';
     index = widget.index ?? index;
-    
+
     if (index.isNotEmpty && index != null) {
       _key = GlobalKey();
       idMap.ids[index] = _key;
@@ -160,6 +161,7 @@ mixin TextElementStateMixin {
 
   IDMap idMap = IDMap();
   LinkMap linkMap = LinkMap();
+  Bus bus = Bus();
   String index;
   GlobalKey _key;
   EdgeInsets padding;
@@ -218,6 +220,8 @@ mixin TextElementStateMixin {
                       destinationKey.currentContext.findRenderObject();
                   final position = renderbox.localToGlobal(Offset.zero);
                   print('position of $destinationKey: $position');
+                  print(position.dy);
+                  bus.screenPosition.add(position.dy);
                 },
               // ..onTap = () => print(linkMap.links[id]),
               style: TextStyle(
