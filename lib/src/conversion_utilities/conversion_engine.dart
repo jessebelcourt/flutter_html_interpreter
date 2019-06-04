@@ -149,7 +149,7 @@ class ConversionEngine {
       }
 
       switch (node.localName) {
-        case H1:
+        // case H1:
           // Key key;
           // key = containsId(node);
           // return h1.cloneWithText(node.text, key);
@@ -158,8 +158,8 @@ class ConversionEngine {
           // print(p.)
           // Paragraph2 p2 = Paragraph2({...p});
           
-          linkInterpolation(node);
-          return copyWidgetWithText(p, node.text, node.id);
+          // linkInterpolation(node);
+          // return copyWidgetWithText(p, node.text, node.id);
 
           // return p;
           // return ;
@@ -191,11 +191,9 @@ class ConversionEngine {
         //   linkInterpolation(node);
         //   return h6.cloneWithText(node.text, key);
 
-        // case P:
-        //   // Key key;
-        //   // linkInterpolation(node);
-        //   // return p.cloneWithText(node.text.replaceAll('\u00A0', ''), key);
-        //   return Text('paragraph text');
+        case P:
+          linkInterpolation(node);
+          return copyWidgetWithText(p, node.text.replaceAll('\u00A0', ''), node.id);
 
         case HR:
           return HRDivider();

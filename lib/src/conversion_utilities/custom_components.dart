@@ -16,52 +16,7 @@ class HRDivider extends StatelessWidget {
   }
 }
 
-// // class Header extends TextBasedElement {
-// class Header extends TextBasedElement {
-//   Header({
-//     padding,
-//     margin,
-//     text,
-//     fontSize,
-//     type,
-//     key,
-//   }) : super(
-//           padding: padding,
-//           margin: margin,
-//           text: text,
-//           fontSize: fontSize,
-//           type: type,
-//           key: key,
-//         );
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Row(
-//       key: super.key,
-//       mainAxisAlignment: MainAxisAlignment.start,
-//       children: <Widget>[
-//         Flexible(
-//           child: Container(
-//             padding: padding,
-//             margin: margin,
-//             child: RichText(
-//               text: TextSpan(
-//                 style: TextStyle(
-//                   color: Colors.black,
-//                   fontSize: fontSize,
-//                 ),
-//                 children: text,
-//               ),
-//             ),
-//           ),
-//         )
-//       ],
-//     );
-//   }
-// }
-
 class Paragraph extends StatefulWidget {
-  
   final EdgeInsets padding;
   final EdgeInsets margin;
   final String text;
@@ -69,7 +24,7 @@ class Paragraph extends StatefulWidget {
   final ElementType type;
   final Color color;
   final String index;
-  
+
   Paragraph({
     this.padding,
     this.margin,
@@ -84,8 +39,29 @@ class Paragraph extends StatefulWidget {
   ParagraphState createState() => ParagraphState();
 }
 
-class ParagraphState extends State<Paragraph> with TextElementStateMixin {
+class Header extends StatefulWidget {
+  final EdgeInsets padding;
+  final EdgeInsets margin;
+  final String text;
+  final double fontSize;
+  final ElementType type;
+  final Color color;
+  final String index;
 
+  Header({
+    this.padding,
+    this.margin,
+    this.text,
+    this.fontSize,
+    this.type,
+    this.color,
+    this.index,
+  });
+
+  _HeaderState createState() => _HeaderState();
+}
+
+class _HeaderState extends State<Header> with TextElementStateMixin {
   @override
   void initState() {
     super.initState();
@@ -101,7 +77,50 @@ class ParagraphState extends State<Paragraph> with TextElementStateMixin {
       idMap.ids[index] = _key;
     }
   }
-  
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        Flexible(
+          child: Container(
+            key: _key,
+            padding: padding,
+            margin: margin,
+            child: RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: fontSize,
+                ),
+                children: buildContent(text, context),
+              ),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class ParagraphState extends State<Paragraph> with TextElementStateMixin {
+  @override
+  void initState() {
+    super.initState();
+    padding = widget.padding ?? defaultPadding;
+    margin = widget.margin ?? defaultMargin;
+    fontSize = widget.fontSize ?? defaultFontSize;
+    color = widget.color ?? defaultColor;
+    type = widget.type ?? defaultElementType;
+    text = widget.text ?? '';
+    index = widget.index ?? index;
+    if (index.isNotEmpty && index != null) {
+      _key = GlobalKey();
+      idMap.ids[index] = _key;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -122,7 +141,7 @@ class ParagraphState extends State<Paragraph> with TextElementStateMixin {
 }
 
 mixin TextElementStateMixin {
-    IDMap idMap = IDMap();
+  IDMap idMap = IDMap();
   LinkMap linkMap = LinkMap();
   String index;
   GlobalKey _key;
@@ -138,7 +157,7 @@ mixin TextElementStateMixin {
   Color defaultColor = Colors.black;
   double defaultFontSize = P_FONT_SIZE;
   ElementType defaultElementType = ElementType.p;
-   List<TextSpan> buildContent(String textIn, BuildContext context) {
+  List<TextSpan> buildContent(String textIn, BuildContext context) {
     textIn = textIn ?? '';
     RegExp re = RegExp(r'\[FINDME_ID_(.*?)_ENDID_\]');
     String findMe;
@@ -162,13 +181,12 @@ mixin TextElementStateMixin {
           findMe = match.group(0);
           String id = match.group(1);
 
-
           if (indexStart == 0) {
             // adding link
             input = TextSpan(
               text: temp.substring(findMe.length, indexEnd),
               recognizer: TapGestureRecognizer()
-                ..onTap = () { 
+                ..onTap = () {
                   Map<String, String> link = linkMap.links[id];
                   GlobalKey destinationKey;
 
@@ -178,7 +196,8 @@ mixin TextElementStateMixin {
                     }
                   });
 
-                  final RenderBox renderbox = destinationKey.currentContext.findRenderObject();
+                  final RenderBox renderbox =
+                      destinationKey.currentContext.findRenderObject();
                   final position = renderbox.localToGlobal(Offset.zero);
                   print('position of $destinationKey: $position');
                 },
@@ -211,5 +230,4 @@ mixin TextElementStateMixin {
 
     return result;
   }
-
 }
