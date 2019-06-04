@@ -24,7 +24,7 @@ class _ArticleViewAppState extends State<ArticleViewApp> {
   ConversionEngine engine = ConversionEngine(
     classToRemove: 'hideme',
     domain: 'amchara.com',
-    p: Paragraph2(
+    p: Paragraph(
       color: Colors.red,
       fontSize: 50,
       padding: EdgeInsets.all(25),
