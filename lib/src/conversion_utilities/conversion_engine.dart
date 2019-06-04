@@ -3,9 +3,51 @@ import 'package:blog_parser/src/conversion_utilities/element_type.dart';
 import 'package:blog_parser/src/conversion_utilities/style_values.dart';
 import 'package:blog_parser/src/conversion_utilities/custom_components.dart';
 import 'package:html/dom.dart' as dom;
+import 'package:flutter_html/flutter_html.dart';
 import 'package:blog_parser/src/conversion_utilities/link_map.dart';
 import 'package:blog_parser/src/conversion_utilities/id_map.dart';
 import 'package:uuid/uuid.dart';
+
+class RenderHtml extends StatefulWidget {
+  final String text;
+  RenderHtml({this.text});
+
+  _RenderHtmlState createState() => _RenderHtmlState();
+}
+
+class _RenderHtmlState extends State<RenderHtml> {
+  ScrollController controller = ScrollController();
+
+  void _goToElement(double offset) {
+
+    Duration duration = Duration(milliseconds: 100);
+    controller.animateTo(offset, duration: duration, curve: Curves.easeOut);
+  }
+  
+  ConversionEngine engine = ConversionEngine(
+    classToRemove: 'hideme',
+    domain: 'amchara.com',
+
+    // customRender: (node, children) {
+    //   if (node is dom.Element) {
+    //     if (node.localName == 'h1') {
+    //       return Text('tisk tisk tisk');
+    //     }
+    //   }
+    // }
+  );
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      controller: controller,
+      child: Html(
+        data: widget.text,
+        useRichText: false,
+        customRender: engine.run,
+      ),
+    );
+  }
+}
 
 class ConversionEngine {
   String classToRemove;

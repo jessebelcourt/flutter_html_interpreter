@@ -13,36 +13,8 @@ class ArticleViewApp extends StatefulWidget {
 
 class _ArticleViewAppState extends State<ArticleViewApp> {
 
-  ScrollController controller = ScrollController();
-
-  void _goToElement(double offset) {
-
-    Duration duration = Duration(milliseconds: 100);
-    controller.animateTo(offset, duration: duration, curve: Curves.easeOut);
-  }
-  
-  ConversionEngine engine = ConversionEngine(
-    classToRemove: 'hideme',
-    domain: 'amchara.com',
-
-    // customRender: (node, children) {
-    //   if (node is dom.Element) {
-    //     if (node.localName == 'h1') {
-    //       return Text('tisk tisk tisk');
-    //     }
-    //   }
-    // }
-  );
-
   Widget filteredContent(BuildContext context, String rawString) {
-    return SingleChildScrollView(
-      controller: controller,
-      child: Html(
-        data: rawString ?? '',
-        useRichText: false,
-        customRender: engine.run,
-      ),
-    );
+    return RenderHtml(text: rawString);
   }
 
   Widget content(BuildContext context) {
