@@ -6,7 +6,6 @@ import 'package:html/dom.dart' as dom;
 import 'package:blog_parser/src/conversion_utilities/link_map.dart';
 import 'package:blog_parser/src/conversion_utilities/id_map.dart';
 import 'package:uuid/uuid.dart';
-import 'package:uuid/uuid_util.dart';
 
 class ConversionEngine {
   String classToRemove;
@@ -52,15 +51,6 @@ class ConversionEngine {
     this.p = p ?? Paragraph();
     this.hr = hr ?? HRDivider();
   }
-
-  void setContext(BuildContext context) {
-    context = context;
-  }
-
-  void getContext(BuildContext context) {
-    print(context);
-  }
-
 
   void linkInterpolation(dom.Element node) {
     List<dom.Element> els = node.getElementsByTagName('a');

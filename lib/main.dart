@@ -24,6 +24,7 @@ class _ArticleViewAppState extends State<ArticleViewApp> {
   ConversionEngine engine = ConversionEngine(
     classToRemove: 'hideme',
     domain: 'amchara.com',
+
     // customRender: (node, children) {
     //   if (node is dom.Element) {
     //     if (node.localName == 'h1') {
@@ -34,8 +35,6 @@ class _ArticleViewAppState extends State<ArticleViewApp> {
   );
 
   Widget filteredContent(BuildContext context, String rawString) {
-    engine.setContext(context);
-
     return SingleChildScrollView(
       controller: controller,
       child: Html(
