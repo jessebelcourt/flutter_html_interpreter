@@ -4,6 +4,7 @@ import 'package:blog_parser/src/conversion_utilities/style_values.dart';
 import 'package:blog_parser/src/conversion_utilities/custom_components.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:blog_parser/src/conversion_utilities/link_map.dart';
+import 'package:blog_parser/src/conversion_utilities/id_map.dart';
 import 'package:uuid/uuid.dart';
 import 'package:uuid/uuid_util.dart';
 
@@ -12,7 +13,9 @@ class ConversionEngine {
   bool stripEmptyElements = true;
   String domain;
   LinkMap linkMap = LinkMap();
+  IDMap idMap = IDMap();
   Uuid uuid = Uuid();
+  BuildContext context;
 
   TextBasedElement h1;
   TextBasedElement h2;
@@ -20,7 +23,7 @@ class ConversionEngine {
   TextBasedElement h4;
   TextBasedElement h5;
   TextBasedElement h6;
-  TextBasedElement p;
+  Paragraph p;
   HRDivider hr;
   TextStyle defaultLinkStyle;
 
@@ -30,13 +33,14 @@ class ConversionEngine {
     this.classToRemove,
     this.customRender,
     this.domain,
+    this.context,
     TextBasedElement h1,
     TextBasedElement h2,
     TextBasedElement h3,
     TextBasedElement h4,
     TextBasedElement h5,
     TextBasedElement h6,
-    TextBasedElement p,
+    Paragraph p,
   }) {
     this.h1 = h1 ?? Header(type: ElementType.h1);
     this.h2 = h2 ?? Header(type: ElementType.h2);
@@ -47,6 +51,22 @@ class ConversionEngine {
     this.h6 = h6 ?? Header(type: ElementType.h6);
     this.p = p ?? Paragraph(type: ElementType.p);
     this.hr = hr ?? HRDivider();
+  }
+
+  Key containsId(dom.Element node){
+    if (node.id.isNotEmpty) {
+      Key key = Key(node.id);
+      idMap.ids[node.id] = key;
+      return key;
+    }
+  }
+
+  void setContext(BuildContext context) {
+    context = context;
+  }
+
+  void getContext(BuildContext context) {
+    print(context);
   }
 
 
@@ -60,28 +80,34 @@ class ConversionEngine {
           if (href != null && href != '') {
             String id = uuid.v5(Uuid.NAMESPACE_URL, href);
             Uri uri = Uri.parse(href);
+            // absolute links
             if (uri.isAbsolute) {
               // does link go to outside source?
               if (!href.contains(domain)) {
                 linkMap.links[id] = {
                   'href': href,
                   'type': 'external',
+                  'url_type': 'absolute',
                 };
               } else {
                 linkMap.links[id] = {
                   'href': href,
                   'type': 'internal',
+                  'url_type': 'absolute',
                 };
               }
             } else {
+              //
               linkMap.links[id] = {
                   'href': href,
-                  'type': 'general',
+                  'type': 'internal',
+                  'url_type': 'relative',
                 };
             }
+
+            linkMap.links[id]['to_id'] = uri.fragment;
             link.text = '[FINDME_ID_${id}_ENDID_]${link.text}[/FINDME]';
           }
-          
         }
       });
     }
@@ -99,11 +125,6 @@ class ConversionEngine {
         return null;
       }
 
-      //Check for ID's
-      if (node.id != '') {
-        // print('id: ${node.id}');
-      }
-
       if (stripEmptyElements && (node.text == '\u00A0')) {
         return Container();
       }
@@ -115,31 +136,40 @@ class ConversionEngine {
       switch (node.localName) {
         case H1:
           linkInterpolation(node);
-          return h1.cloneWithText(node.text);
+          Key key;
+          key = containsId(node);
+          return h1.cloneWithText(node.text, key);
 
         case H2:
           linkInterpolation(node);
-          return h2.cloneWithText(node.text);
+          Key key;
+          // key = containsId(node);
+          return h2.cloneWithText(node.text, key);
 
         case H3:
+          Key key;
           linkInterpolation(node);
-          return h3.cloneWithText(node.text);
+          return h3.cloneWithText(node.text, key);
 
         case H4:
+          Key key;
           linkInterpolation(node);
-          return h4.cloneWithText(node.text);
+          return h4.cloneWithText(node.text, key);
 
         case H5:
+          Key key;
           linkInterpolation(node);
-          return h5.cloneWithText(node.text);
+          return h5.cloneWithText(node.text, key);
 
         case H6:
+          Key key;
           linkInterpolation(node);
-          return h6.cloneWithText(node.text);
+          return h6.cloneWithText(node.text, key);
 
         case P:
+          Key key;
           linkInterpolation(node);
-          return p.cloneWithText(node.text.replaceAll('\u00A0', ''));
+          return p.cloneWithText(node.text.replaceAll('\u00A0', ''), key);
 
         case HR:
           return HRDivider();

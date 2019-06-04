@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:blog_parser/src/conversion_utilities/conversion_engine.dart';
+import 'package:blog_parser/src/conversion_utilities/custom_components.dart';
 
 void main() {
   runApp(ArticleViewApp());
@@ -11,7 +12,7 @@ class ArticleViewApp extends StatefulWidget {
 }
 
 class _ArticleViewAppState extends State<ArticleViewApp> {
-  final ConversionEngine engine = ConversionEngine(
+  ConversionEngine engine = ConversionEngine(
     classToRemove: 'hideme',
     domain: 'amchara.com',
     // customRender: (node, children) {
@@ -23,7 +24,9 @@ class _ArticleViewAppState extends State<ArticleViewApp> {
     // }
   );
 
-  Widget filteredContent(String rawString) {
+  Widget filteredContent(BuildContext context, String rawString) {
+    engine.setContext(context);
+
     return SingleChildScrollView(
       child: Html(
         data: rawString ?? '',
@@ -40,7 +43,7 @@ class _ArticleViewAppState extends State<ArticleViewApp> {
           future: DefaultAssetBundle.of(context)
               .loadString('assets/example-post.html'),
           builder: (context, snapshot) {
-            return filteredContent(snapshot.data);
+            return filteredContent(context, snapshot.data);
           }),
     );
   }
