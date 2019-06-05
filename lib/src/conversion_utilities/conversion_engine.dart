@@ -8,7 +8,6 @@ import 'package:html_interpreter/src/conversion_utilities/link_map.dart';
 import 'package:html_interpreter/src/conversion_utilities/id_map.dart';
 import 'package:html_interpreter/src/conversion_utilities/bus.dart';
 import 'package:uuid/uuid.dart';
-import 'dart:async';
 
 class RenderHtml extends StatefulWidget {
   final String text;
@@ -87,6 +86,7 @@ class ConversionEngine {
     Header h5,
     Header h6,
     Paragraph p,
+    HRDivider hr,
   }) {
     this.h1 = h1 ?? Header(type: ElementType.h1);
     this.h2 = h2 ?? Header(type: ElementType.h2);
@@ -136,7 +136,6 @@ class ConversionEngine {
 
               linkMap.links[id]['to_id'] = uri.fragment;
               linkMap.links[id]['link_text'] = link.text;
-              // link.text = '[FINDME_ID_${id}_ENDID_]${link.text}[/FINDME]';
               link.text = '[FINDME_ID_${id}_ENDID_]';
             }
           }
@@ -206,11 +205,11 @@ class ConversionEngine {
       }
 
       switch (node.localName) {
-        case H1:
+        case elementTypeBElementType.h1:
           linkInterpolation(node);
           return copyWidgetWithText(h1, node.text, node.id);
 
-        case H2:
+        case element:
           linkInterpolation(node);
           return copyWidgetWithText(h2, node.text, node.id);
 
@@ -235,7 +234,8 @@ class ConversionEngine {
           return copyWidgetWithText(p, node.text.replaceAll('\u00A0', ''), node.id);
 
         case HR:
-          return HRDivider();
+          return copyWidgetWithText(hr);
+        
 
         default:
           return null;

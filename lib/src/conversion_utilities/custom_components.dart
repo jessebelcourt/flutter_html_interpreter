@@ -7,12 +7,37 @@ import 'package:html_interpreter/src/conversion_utilities/link_map.dart';
 import 'package:html_interpreter/src/conversion_utilities/bus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class HRDivider extends StatelessWidget {
+class HRDivider extends StatefulWidget {
+  final Color color;
+  final EdgeInsets margin;
+  final dynamic height;
+
+  HRDivider({this.color, this.margin, this.height});
+
+  _HRDividerState createState() => _HRDividerState();
+}
+
+class _HRDividerState extends State<HRDivider> {
+  Color color;
+  dynamic height;
+  EdgeInsets margin;
+
+  @override
+  void initState() {
+    super.initState();
+    color = widget.color ?? defaultHRColor;
+    height = widget.height ?? defaultHRHeight;
+    margin = widget.margin ?? defaultHRMargin;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Divider(
-      height: 2,
-      color: Colors.black,
+    return Container(
+      margin: margin,
+      child: Divider(
+        color: color,
+        height: height,
+      ),
     );
   }
 }
@@ -178,11 +203,11 @@ mixin TextElementStateMixin {
       });
 
       if (destinationKey != null) {
-        final RenderBox renderbox = destinationKey.currentContext.findRenderObject();
+        final RenderBox renderbox =
+            destinationKey.currentContext.findRenderObject();
         final position = renderbox.localToGlobal(Offset.zero);
         bus.screenPosition.add(position.dy);
       }
-
     }
   }
 

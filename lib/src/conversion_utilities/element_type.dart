@@ -6,4 +6,5 @@ enum ElementType {
   h5,
   h6,
   p,
+  hr,
 }
