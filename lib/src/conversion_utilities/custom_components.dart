@@ -7,27 +7,36 @@ import 'package:html_interpreter/src/conversion_utilities/link_map.dart';
 import 'package:html_interpreter/src/conversion_utilities/bus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class HRDivider extends StatefulWidget {
+class HR extends StatefulWidget {
   final Color color;
   final EdgeInsets margin;
   final dynamic height;
+  final ElementType type;
 
-  HRDivider({this.color, this.margin, this.height});
+  HR({
+    this.color,
+    this.margin,
+    this.height,
+    this.type,
+  });
 
-  _HRDividerState createState() => _HRDividerState();
+  _HRState createState() => _HRState();
 }
 
-class _HRDividerState extends State<HRDivider> {
+class _HRState extends State<HR> {
   Color color;
   dynamic height;
   EdgeInsets margin;
+  ElementType type;
 
   @override
   void initState() {
     super.initState();
-    color = widget.color ?? defaultHRColor;
-    height = widget.height ?? defaultHRHeight;
-    margin = widget.margin ?? defaultHRMargin;
+    type = ElementType.hr;
+    HtmlPropertyModel model = PropertyBuilder.typeMapping[type];
+    color = widget.color ?? model.color;
+    height = widget.height ?? model.height;
+    margin = widget.margin ?? model.margin;
   }
 
   @override
@@ -65,6 +74,45 @@ class Paragraph extends StatefulWidget {
   ParagraphState createState() => ParagraphState();
 }
 
+class ParagraphState extends State<Paragraph> with TextElementStateMixin {
+  @override
+  void initState() {
+    super.initState();
+    // This has all the defaults
+    type = widget.type ?? ElementType.p;
+    HtmlPropertyModel model = PropertyBuilder.typeMapping[type];
+
+    padding = widget.padding ?? model.padding;
+    margin = widget.margin ?? model.margin;
+    fontSize = widget.fontSize ?? model.fontSize;
+    color = widget.color ?? model.color;
+    text = widget.text ?? '';
+    index = widget.index ?? index;
+    if (index.isNotEmpty && index != null) {
+      _key = GlobalKey();
+      idMap.ids[index] = _key;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: _key,
+      padding: padding,
+      margin: margin,
+      child: RichText(
+        text: TextSpan(
+          style: TextStyle(
+            color: color,
+            fontSize: fontSize,
+          ),
+          children: buildContent(text, context),
+        ),
+      ),
+    );
+  }
+}
+
 class Header extends StatefulWidget {
   final EdgeInsets padding;
   final EdgeInsets margin;
@@ -88,20 +136,16 @@ class Header extends StatefulWidget {
 }
 
 class _HeaderState extends State<Header> with TextElementStateMixin {
-  ElementType defaultElementType = ElementType.h1;
-  double defaultFontSize = H1_FONT_SIZE;
-
   @override
   void initState() {
     super.initState();
-    if (type != null) {
-      fontSize = defaultFontSizes[type];
-    }
-    padding = widget.padding ?? defaultPadding;
-    margin = widget.margin ?? defaultMargin;
-    fontSize = widget.fontSize ?? defaultFontSize;
-    color = widget.color ?? defaultColor;
-    type = widget.type ?? defaultElementType;
+    type = widget.type ?? ElementType.h1;
+    HtmlPropertyModel model = PropertyBuilder.typeMapping[type];
+
+    padding = widget.padding ?? model.padding;
+    margin = widget.margin ?? model.margin;
+    fontSize = widget.fontSize ?? model.fontSize;
+    color = widget.color ?? model.color;
     text = widget.text ?? '';
     index = widget.index ?? index;
 
@@ -137,60 +181,10 @@ class _HeaderState extends State<Header> with TextElementStateMixin {
   }
 }
 
-class ParagraphState extends State<Paragraph> with TextElementStateMixin {
-  @override
-  void initState() {
-    super.initState();
-    if (type != null) {
-      fontSize = defaultFontSizes[type];
-    }
-    padding = widget.padding ?? defaultParagraphPadding;
-    margin = widget.margin ?? defaultMargin;
-    fontSize = widget.fontSize ?? defaultFontSize;
-    color = widget.color ?? defaultColor;
-    type = widget.type ?? defaultElementType;
-    text = widget.text ?? '';
-    index = widget.index ?? index;
-    if (index.isNotEmpty && index != null) {
-      _key = GlobalKey();
-      idMap.ids[index] = _key;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      key: _key,
-      padding: padding,
-      margin: margin,
-      child: RichText(
-        text: TextSpan(
-          style: TextStyle(
-            color: color,
-            fontSize: fontSize,
-          ),
-          children: buildContent(text, context),
-        ),
-      ),
-    );
-  }
-}
-
 mixin TextElementStateMixin {
-  Map<ElementType, double> defaultFontSizes = {
-    ElementType.h1: H1_FONT_SIZE,
-    ElementType.h2: H2_FONT_SIZE,
-    ElementType.h3: H3_FONT_SIZE,
-    ElementType.h4: H4_FONT_SIZE,
-    ElementType.h5: H5_FONT_SIZE,
-    ElementType.h6: H6_FONT_SIZE,
-    ElementType.p: P_FONT_SIZE,
-  };
-
   void handleLinkClick(String id) {
     if (id != null && id.isNotEmpty) {
       Map<String, String> link = linkMap.links[id];
-      print(link);
       if (link['type'] == 'external') {
         handleExternalLink(link['href']);
       }
@@ -203,10 +197,11 @@ mixin TextElementStateMixin {
       });
 
       if (destinationKey != null) {
-        final RenderBox renderbox =
+
+        RenderBox renderbox =
             destinationKey.currentContext.findRenderObject();
-        final position = renderbox.localToGlobal(Offset.zero);
-        bus.screenPosition.add(position.dy);
+        var position = renderbox.localToGlobal(Offset.zero);
+        bus.screenPosition.add(position.dy - renderbox.size.height);
       }
     }
   }
@@ -230,12 +225,6 @@ mixin TextElementStateMixin {
   double fontSize;
   String text;
   ElementType type;
-  // Default Values
-  EdgeInsets defaultPadding = EdgeInsets.all(0);
-  EdgeInsets defaultMargin = EdgeInsets.all(0);
-  Color defaultColor = Colors.black;
-  double defaultFontSize = P_FONT_SIZE;
-  ElementType defaultElementType = ElementType.p;
 
   List<TextSpan> buildContent(String textIn, BuildContext context) {
     textIn = textIn ?? '';
