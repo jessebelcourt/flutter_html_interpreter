@@ -18,6 +18,10 @@ const H6_FONT_SIZE = 18.0;
 
 const P_FONT_SIZE = 16.0;
 
+// Default Paragraph
+const EdgeInsets defaultParagraphPadding = EdgeInsets.only(top: 10, bottom: 10);
+const EdgeInsets defaultParagraphMargin = EdgeInsets.all(0);
+
 const EdgeInsets defaultPadding = EdgeInsets.all(0);
 const EdgeInsets defaultMargin = EdgeInsets.all(0);
 const List<TextSpan> defaultText = [TextSpan(text: '')];

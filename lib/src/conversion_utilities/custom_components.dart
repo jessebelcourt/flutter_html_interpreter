@@ -116,7 +116,10 @@ class ParagraphState extends State<Paragraph> with TextElementStateMixin {
   @override
   void initState() {
     super.initState();
-    padding = widget.padding ?? defaultPadding;
+    if (type != null) {
+      fontSize = defaultFontSizes[type];
+    }
+    padding = widget.padding ?? defaultParagraphPadding;
     margin = widget.margin ?? defaultMargin;
     fontSize = widget.fontSize ?? defaultFontSize;
     color = widget.color ?? defaultColor;
@@ -162,7 +165,7 @@ mixin TextElementStateMixin {
   void handleLinkClick(String id) {
     if (id != null && id.isNotEmpty) {
       Map<String, String> link = linkMap.links[id];
-      
+      print(link);
       if (link['type'] == 'external') {
         handleExternalLink(link['href']);
       }
@@ -177,8 +180,6 @@ mixin TextElementStateMixin {
       if (destinationKey != null) {
         final RenderBox renderbox = destinationKey.currentContext.findRenderObject();
         final position = renderbox.localToGlobal(Offset.zero);
-        print('position of $destinationKey: $position');
-        print(position.dy);
         bus.screenPosition.add(position.dy);
       }
 
@@ -186,7 +187,6 @@ mixin TextElementStateMixin {
   }
 
   void handleExternalLink(String url) async {
-    print('url: $url');
     if (await canLaunch(url)) {
       await launch(url);
     } else {
