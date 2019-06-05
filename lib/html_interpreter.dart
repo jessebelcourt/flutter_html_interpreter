@@ -1,1 +1,2 @@
-import 'package:blog_parser/src/conversion_utilities/conversion_engine.dart';
+import 'package:html_interpreter/src/conversion_utilities/conversion_engine.dart';
+export 'package:html_interpreter/src/conversion_utilities/conversion_engine.dart';

@@ -1,13 +1,11 @@
-import 'package:blog_parser/src/conversion_utilities/id_map.dart';
+import 'package:html_interpreter/src/conversion_utilities/id_map.dart';
 import 'package:flutter/material.dart';
-import 'package:blog_parser/src/conversion_utilities/style_values.dart';
-import 'package:blog_parser/src/conversion_utilities/element_type.dart';
+import 'package:html_interpreter/src/conversion_utilities/style_values.dart';
+import 'package:html_interpreter/src/conversion_utilities/element_type.dart';
 import 'package:flutter/gestures.dart';
-import 'package:blog_parser/src/conversion_utilities/link_map.dart';
-import 'package:blog_parser/src/conversion_utilities/id_map.dart';
-import 'package:blog_parser/src/conversion_utilities/bus.dart';
+import 'package:html_interpreter/src/conversion_utilities/link_map.dart';
+import 'package:html_interpreter/src/conversion_utilities/bus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:async';
 
 class HRDivider extends StatelessWidget {
   @override

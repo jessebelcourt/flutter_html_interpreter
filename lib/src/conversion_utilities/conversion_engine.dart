@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:blog_parser/src/conversion_utilities/element_type.dart';
-import 'package:blog_parser/src/conversion_utilities/style_values.dart';
-import 'package:blog_parser/src/conversion_utilities/custom_components.dart';
+import 'package:html_interpreter/src/conversion_utilities/element_type.dart';
+import 'package:html_interpreter/src/conversion_utilities/style_values.dart';
+import 'package:html_interpreter/src/conversion_utilities/custom_components.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:flutter_html/flutter_html.dart';
-import 'package:blog_parser/src/conversion_utilities/link_map.dart';
-import 'package:blog_parser/src/conversion_utilities/id_map.dart';
-import 'package:blog_parser/src/conversion_utilities/bus.dart';
+import 'package:html_interpreter/src/conversion_utilities/link_map.dart';
+import 'package:html_interpreter/src/conversion_utilities/id_map.dart';
+import 'package:html_interpreter/src/conversion_utilities/bus.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:async';
 
