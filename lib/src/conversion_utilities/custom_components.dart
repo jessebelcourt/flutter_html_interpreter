@@ -188,7 +188,9 @@ class UnorderdList extends StatefulWidget {
   final EdgeInsets listMargin;
   final EdgeInsets listItemPadding;
   final EdgeInsets listItemMargin;
-  final List<TextSpan> listItems;
+  final List<String> listItems;
+  final double iconGap;
+  final double iconSize;
   final ElementType type;
   final String index;
 
@@ -200,6 +202,8 @@ class UnorderdList extends StatefulWidget {
     this.listItemPadding,
     this.listItemMargin,
     this.listItems,
+    this.iconGap,
+    this.iconSize,
     this.type,
     this.index,
   });
@@ -215,6 +219,8 @@ class _UnorderdListState extends State<UnorderdList> {
   EdgeInsets listItemPadding;
   EdgeInsets listItemMargin;
   List<String> listItems;
+  double iconGap;
+  double iconSize;
   ElementType type;
 
   @override
@@ -229,28 +235,59 @@ class _UnorderdListState extends State<UnorderdList> {
     listMargin = widget.listMargin ?? model.listMargin;
     listItemPadding = widget.listItemPadding ?? model.listItemPadding;
     listItemMargin = widget.listItemMargin ?? model.listItemMargin;
+    listItems = widget.listItems ?? [""];
+    iconGap = widget.iconGap ?? model.iconGap;
+    iconSize = widget.iconSize ?? model.iconSize;
   }
 
   List<Widget> listItem(List<String> content) {
     List<Widget> listItems = content.map((item) {
-      return Row(
-        children: <Widget>[
-          Text('Temporary'),
-        ],
+      print(iconSize);
+      return Container(
+        padding: listItemPadding,
+        margin: listItemMargin,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              height: fontSize,
+              padding: EdgeInsets.only(
+                top: 3,
+                right: iconGap,
+              ),
+              child: Icon(
+                Icons.brightness_1,
+                size: iconSize,
+              ),
+            ),
+            Expanded(
+              child: Container(
+                child: Text(
+                  (item.isNotEmpty ? item : ''),
+                ),
+              ),
+            ),
+          ],
+        ),
       );
     }).toList();
-    
+
+    return listItems;
   }
 
   @override
   Widget build(BuildContext context) {
-    
-    return Container(
-      // margin: margin,
-      child: Column(
-        children: listItem(listItems),
-      ),
-    );
+    if (listItems != null && listItems.isNotEmpty) {
+      return Container(
+        padding: listPadding,
+        margin: listMargin,
+        child: Column(
+          children: listItem(listItems),
+        ),
+      );
+    } else {
+      return Container();
+    }
   }
 }
 

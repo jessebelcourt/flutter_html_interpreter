@@ -9,6 +9,7 @@ class HtmlPropertyModel {
   dynamic fontSize;
   String name;
   dynamic height;
+  double iconSize;
   ElementType type;
 
   HtmlPropertyModel({
@@ -27,6 +28,8 @@ class ListHtmlPropertyModel extends HtmlPropertyModel {
   EdgeInsets listItemPadding;
   EdgeInsets listMargin;
   EdgeInsets listItemMargin;
+  double iconGap;
+  double iconSize;
 
   ListHtmlPropertyModel({
     Color color,
@@ -35,6 +38,8 @@ class ListHtmlPropertyModel extends HtmlPropertyModel {
     this.listItemPadding,
     this.listMargin,
     this.listItemMargin,
+    this.iconGap,
+    this.iconSize,
     String name,
     ElementType type,
   }) : super(
@@ -100,6 +105,9 @@ class PropertyBuilder {
     top: 0,
     bottom: 0,
   );
+
+  static final double iconGap = 5.0;
+  static final double iconSize = 10.0;
 
   static final dynamic defaultHRHeight = 2.0;
   static final Color defaultHRColor = Colors.black;
@@ -194,6 +202,9 @@ class PropertyBuilder {
     listItemPadding: PropertyBuilder.defaultListItemPadding,
     listItemMargin: PropertyBuilder.defaultListItemPadding,
     color: PropertyBuilder.color,
+    fontSize: PropertyBuilder.defaultListFontSize,
+    iconGap: PropertyBuilder.iconGap,
+    iconSize: PropertyBuilder.iconSize,
     name: 'ul',
     type: ElementType.hr,
   );

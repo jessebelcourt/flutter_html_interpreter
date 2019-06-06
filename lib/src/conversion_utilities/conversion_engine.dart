@@ -192,6 +192,7 @@ class ConversionEngine {
             listItemPadding: inWidget.listItemPadding,
             listItemMargin: inWidget.listItemMargin,
             fontSize: inWidget.fontSize,
+            iconGap: inWidget.iconGap,
             color: inWidget.color,
             index: index,
             listItems: text,
@@ -279,13 +280,15 @@ class ConversionEngine {
           );
 
         case 'ul':
-          var li = node.querySelectorAll('li');
-          copyWidgetWithText(
+          List<String> li = node.querySelectorAll('li').map((item) {
+            return item.text;
+          }).toList();
+
+          return copyWidgetWithText(
             inWidget: ul,
             text: li,
             index: node.id,
           );
-          return null;
 
         default:
           return null;
