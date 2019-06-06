@@ -19,7 +19,6 @@ class HR extends StatefulWidget {
     this.height,
     this.type,
   });
-
   _HRState createState() => _HRState();
 }
 
@@ -37,16 +36,20 @@ class _HRState extends State<HR> {
     color = widget.color ?? model.color;
     height = widget.height ?? model.height;
     margin = widget.margin ?? model.margin;
+    print(margin);
+    print(color);
+    print(height);
   }
 
   @override
   Widget build(BuildContext context) {
+   
     return Container(
       margin: margin,
-      child: Divider(
+      child: height != 0 ?Divider(
         color: color,
         height: height,
-      ),
+      ) : Container(),
     );
   }
 }
@@ -213,7 +216,7 @@ class UnorderdList extends StatefulWidget {
   _UnorderdListState createState() => _UnorderdListState();
 }
 
-class _UnorderdListState extends State<UnorderdList> {
+class _UnorderdListState extends State<UnorderdList> with TextElementStateMixin {
   Color color;
   double fontSize;
   EdgeInsets listPadding;
@@ -245,7 +248,6 @@ class _UnorderdListState extends State<UnorderdList> {
   }
 
   List<Widget> listItem(List<String> content) {
-    print(iconColor);
     List<Widget> listItems = content.map((item) {
       return Container(
         padding: listItemPadding,
@@ -267,8 +269,14 @@ class _UnorderdListState extends State<UnorderdList> {
             ),
             Expanded(
               child: Container(
-                child: Text(
-                  (item.isNotEmpty ? item : ''),
+                child: RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      color: color,
+                      fontSize: fontSize,
+                    ),
+                    children: buildContent(item, context),
+                  ),
                 ),
               ),
             ),
@@ -299,8 +307,8 @@ class _UnorderdListState extends State<UnorderdList> {
 mixin TextElementStateMixin {
   void handleLinkClick(String id) {
     if (id != null && id.isNotEmpty) {
-      Map<String, String> link = linkMap.links[id];
-      if (link['type'] == 'external') {
+      Map<String, dynamic> link = linkMap.links[id];
+      if (link['type'] == 'external' && link['enabled']) {
         handleExternalLink(link['href']);
       }
 
@@ -314,7 +322,8 @@ mixin TextElementStateMixin {
       if (destinationKey != null) {
         RenderBox renderbox = destinationKey.currentContext.findRenderObject();
         var position = renderbox.localToGlobal(Offset.zero);
-        bus.screenPosition.add(position.dy - renderbox.size.height);
+        bus.screenPosition.add(position.dy);
+        // bus.screenPosition.add(position.dy + renderbox.size.height);
       }
     }
   }
@@ -368,7 +377,7 @@ mixin TextElementStateMixin {
                   handleLinkClick(id);
                 },
               style: TextStyle(
-                color: Colors.red,
+                decoration: TextDecoration.underline,
               ),
             );
             result.add(input);

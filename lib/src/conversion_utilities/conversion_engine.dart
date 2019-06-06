@@ -20,6 +20,11 @@ class RenderHtml extends StatefulWidget {
   final Header h6;
   final Paragraph p;
   final HR hr;
+  final String classToRemove;
+  final bool stripEmptyElements;
+  final String domain;
+  final bool samePageLinking;
+  final bool disableLinks;
 
   RenderHtml({
     this.text,
@@ -33,6 +38,11 @@ class RenderHtml extends StatefulWidget {
     this.p,
     this.ul,
     this.hr,
+    this.classToRemove,
+    this.stripEmptyElements,
+    this.domain,
+    this.disableLinks,
+    this.samePageLinking,
   });
 
   _RenderHtmlState createState() => _RenderHtmlState();
@@ -51,14 +61,16 @@ class _RenderHtmlState extends State<RenderHtml> {
   Paragraph p;
   HR hr;
   ConversionEngine engine;
+  String classToRemove;
+  String domain;
+  bool samePageLinking;
+  bool stripEmptyElements;
 
   @override
   void initState() {
     super.initState();
 
     engine = ConversionEngine(
-      classToRemove: 'hideme',
-      domain: 'amchara.com',
       ul: widget.ul,
       hr: widget.hr,
       p: widget.p,
@@ -68,11 +80,15 @@ class _RenderHtmlState extends State<RenderHtml> {
       h4: widget.h4,
       h5: widget.h5,
       h6: widget.h6,
+      classToRemove: widget.classToRemove,
+      stripEmptyElements: widget.stripEmptyElements,
+      domain: widget.domain,
+      samePageLinking: widget.samePageLinking,
     );
 
     _controller = widget.scrollcontrol;
     bus.screenPosition.stream.listen((offset) {
-      _goToElement(offset + widget.scrollcontrol.offset);
+      _goToElement(offset + widget.scrollcontrol.offset - 100);
     });
   }
 
@@ -95,14 +111,15 @@ class _RenderHtmlState extends State<RenderHtml> {
 
 class ConversionEngine {
   String classToRemove;
-  bool stripEmptyElements = true;
+  bool stripEmptyElements;
   String domain;
   LinkMap linkMap = LinkMap();
   IDMap idMap = IDMap();
   Uuid uuid = Uuid();
   BuildContext context;
-  bool samePageLinking = false;
-  bool disableLinks = false;
+  bool samePageLinking;
+  bool disableLinks;
+
 
   Header h1;
   Header h2;
@@ -119,9 +136,12 @@ class ConversionEngine {
 
   ConversionEngine({
     this.classToRemove,
+    this.disableLinks,
     this.customRender,
+    this.samePageLinking,
     this.domain,
     this.context,
+    bool stripEmptyElements,
     Header h1,
     Header h2,
     Header h3,
@@ -141,6 +161,9 @@ class ConversionEngine {
     this.p = p ?? Paragraph(type: ElementType.p);
     this.hr = hr ?? HR(type: ElementType.hr);
     this.ul = ul ?? UnorderdList(type: ElementType.ul);
+    this.stripEmptyElements = stripEmptyElements ?? false;
+    this.disableLinks = disableLinks ?? false;
+    this.samePageLinking = samePageLinking ?? true;
   }
 
   void linkInterpolation(dom.Element node) {
@@ -160,17 +183,19 @@ class ConversionEngine {
               // absolute links
               if (uri.isAbsolute) {
                 // does link go to outside source?
-                if (!href.contains(domain)) {
+                if (domain != null && domain.isNotEmpty && !href.contains(domain)) {
                   linkMap.links[id] = {
                     'href': href,
                     'type': 'external',
                     'url_type': 'absolute',
+                    'enabled': !disableLinks,
                   };
                 } else {
                   linkMap.links[id] = {
                     'href': href,
                     'type': 'internal',
                     'url_type': 'absolute',
+                    'enabled': !disableLinks,
                   };
                 }
               } else {
@@ -178,13 +203,19 @@ class ConversionEngine {
                   'href': href,
                   'type': 'internal',
                   'url_type': 'relative',
+                  'enabled': !disableLinks && samePageLinking,
                 };
               }
 
-              RegExp re = RegExp(r'#(.*)$');
-              Match m = re.firstMatch(href);
+              if (samePageLinking) {
+                RegExp re = RegExp(r'#(.*)$');
+                Match m = re.firstMatch(href);
+                linkMap.links[id]['to_id'] = (m != null ? m.group(1) : '');
+              } else {
+                linkMap.links[id]['to_id'] = '';
+              } 
 
-              linkMap.links[id]['to_id'] = (m != null ? m.group(1) : '');
+
               linkMap.links[id]['link_text'] = link.text;
               link.text = '[FINDME_ID_${id}_ENDID_]';
             }
@@ -225,6 +256,7 @@ class ConversionEngine {
         return HR(
           margin: inWidget.margin,
           color: inWidget.color,
+          height: inWidget.height,
         );
       case ElementType.ul:
         return UnorderdList(
@@ -257,10 +289,11 @@ class ConversionEngine {
         return null;
       }
 
-      if (stripEmptyElements && (node.text == '\u00A0')) {
+      // Strip empty elements if stripEmptyElements is true
+      if (stripEmptyElements && (node.text == '\u00A0' || node.text == '')) {
         return Container();
       }
-
+      // Remove node if it's class is specified in classToRemove
       if (classToRemove != null && node.classes.contains(classToRemove)) {
         return Container();
       }
@@ -321,9 +354,16 @@ class ConversionEngine {
             text: node.text.replaceAll('\u00A0', ''),
             index: node.id,
           );
+        case 'hr':
+          return HR(
+            height: hr.height,
+            color: hr.color,
+            margin: hr.margin,
+          );
 
         case 'ul':
           List<String> li = node.querySelectorAll('li').map((item) {
+            linkInterpolation(item);
             return item.text;
           }).toList();
 
