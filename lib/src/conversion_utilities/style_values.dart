@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:html_interpreter/src/conversion_utilities/element_type.dart';
 
 class HtmlPropertyModel {
@@ -21,6 +22,29 @@ class HtmlPropertyModel {
   });
 }
 
+class ListHtmlPropertyModel extends HtmlPropertyModel {
+  EdgeInsets listPadding;
+  EdgeInsets listItemPadding;
+  EdgeInsets listMargin;
+  EdgeInsets listItemMargin;
+
+  ListHtmlPropertyModel({
+    Color color,
+    double fontSize,
+    this.listPadding,
+    this.listItemPadding,
+    this.listMargin,
+    this.listItemMargin,
+    String name,
+    ElementType type,
+  }) : super(
+          fontSize: fontSize,
+          color: color,
+          name: name,
+          type: type,
+        );
+}
+
 class PropertyBuilder {
   static final Map<ElementType, HtmlPropertyModel> typeMapping = {
     ElementType.h1: PropertyBuilder.h1,
@@ -32,6 +56,8 @@ class PropertyBuilder {
     ElementType.p: PropertyBuilder.p,
     ElementType.hr: PropertyBuilder.hr,
   };
+
+  //===== Default Paddings/ Margins ===============
 
   static final EdgeInsets defaultHeaderMargin = EdgeInsets.only(
     top: 0,
@@ -53,9 +79,31 @@ class PropertyBuilder {
     bottom: 0,
   );
 
+  static final EdgeInsets defaultListPadding = EdgeInsets.only(
+    top: 5,
+    bottom: 5,
+    left: 10,
+  );
+
+  static final EdgeInsets defaultListMargin = EdgeInsets.only(
+    top: 0,
+    bottom: 0,
+  );
+
+  static final EdgeInsets defaultListItemPadding = EdgeInsets.only(
+    top: 0,
+    bottom: 0,
+  );
+
+  static final EdgeInsets defaultListItemMargin = EdgeInsets.only(
+    top: 0,
+    bottom: 0,
+  );
+
   static final dynamic defaultHRHeight = 2.0;
   static final Color defaultHRColor = Colors.black;
   static final EdgeInsets defaultHRMargin = EdgeInsets.symmetric(vertical: 5);
+
 
   static final dynamic defaultH1FontSize = 38.0;
   static final dynamic defaultH2FontSize = 34.0;
@@ -63,8 +111,8 @@ class PropertyBuilder {
   static final dynamic defaultH4FontSize = 26.0;
   static final dynamic defaultH5FontSize = 22.0;
   static final dynamic defaultH6FontSize = 18.0;
-
   static final dynamic defaultParagraphFontSize = 16.0;
+  static final dynamic defaultListFontSize = 16.0;
 
   static final Color color = Colors.black;
 
@@ -85,7 +133,7 @@ class PropertyBuilder {
     name: 'h2',
     type: ElementType.h2,
   );
-  
+
   static HtmlPropertyModel h3 = HtmlPropertyModel(
     margin: PropertyBuilder.defaultHeaderPadding,
     padding: PropertyBuilder.defaultHeaderPadding,
@@ -130,7 +178,7 @@ class PropertyBuilder {
     name: 'p',
     type: ElementType.p,
   );
-  
+
   static HtmlPropertyModel hr = HtmlPropertyModel(
     margin: PropertyBuilder.defaultHRMargin,
     color: PropertyBuilder.color,
@@ -138,5 +186,14 @@ class PropertyBuilder {
     name: 'hr',
     type: ElementType.hr,
   );
-}
 
+  static ListHtmlPropertyModel ul = ListHtmlPropertyModel(
+    listPadding: PropertyBuilder.defaultListPadding,
+    listMargin: PropertyBuilder.defaultListMargin,
+    listItemPadding: PropertyBuilder.defaultListItemPadding,
+    listItemMargin: PropertyBuilder.defaultListItemPadding,
+    color: PropertyBuilder.color,
+    name: 'ul',
+    type: ElementType.hr,
+  );
+}
