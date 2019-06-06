@@ -190,6 +190,7 @@ class UnorderdList extends StatefulWidget {
   final EdgeInsets listItemMargin;
   final List<TextSpan> listItems;
   final ElementType type;
+  final String index;
 
   UnorderdList({
     this.color,
@@ -200,6 +201,7 @@ class UnorderdList extends StatefulWidget {
     this.listItemMargin,
     this.listItems,
     this.type,
+    this.index,
   });
 
   _UnorderdListState createState() => _UnorderdListState();

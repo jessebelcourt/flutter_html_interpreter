@@ -42,13 +42,13 @@ class _RenderHtmlState extends State<RenderHtml> {
 
   @override
   Widget build(BuildContext context) {
-      return Container(
-        child: Html(
-          data: widget.text ?? '',
-          useRichText: false,
-          customRender: engine.run,
-        ),
-      );
+    return Container(
+      child: Html(
+        data: widget.text ?? '',
+        useRichText: false,
+        customRender: engine.run,
+      ),
+    );
   }
 }
 
@@ -71,6 +71,7 @@ class ConversionEngine {
   Header h6;
   Paragraph p;
   HR hr;
+  UnorderdList ul;
   TextStyle defaultLinkStyle;
 
   Function customRender;
@@ -88,6 +89,7 @@ class ConversionEngine {
     Header h6,
     Paragraph p,
     HR hr,
+    UnorderdList ul,
   }) {
     this.h1 = h1 ?? Header(type: ElementType.h1);
     this.h2 = h2 ?? Header(type: ElementType.h2);
@@ -97,6 +99,7 @@ class ConversionEngine {
     this.h6 = h6 ?? Header(type: ElementType.h6);
     this.p = p ?? Paragraph(type: ElementType.p);
     this.hr = hr ?? HR(type: ElementType.hr);
+    this.ul = ul ?? UnorderdList(type: ElementType.ul);
   }
 
   void linkInterpolation(dom.Element node) {
@@ -150,7 +153,7 @@ class ConversionEngine {
     }
   }
 
-  Widget copyWidgetWithText({dynamic inWidget, String text, String index}) {
+  Widget copyWidgetWithText({dynamic inWidget, dynamic text, String index}) {
     switch (inWidget.type) {
       case ElementType.h1:
       case ElementType.h2:
@@ -182,6 +185,17 @@ class ConversionEngine {
           margin: inWidget.margin,
           color: inWidget.color,
         );
+      case ElementType.ul:
+        return UnorderdList(
+            listPadding: inWidget.listPadding,
+            listMargin: inWidget.listMargin,
+            listItemPadding: inWidget.listItemPadding,
+            listItemMargin: inWidget.listItemMargin,
+            fontSize: inWidget.fontSize,
+            color: inWidget.color,
+            index: index,
+            listItems: text,
+            );
       default:
         return Container();
     }
@@ -211,42 +225,67 @@ class ConversionEngine {
         case 'h1':
           linkInterpolation(node);
           return copyWidgetWithText(
-              inWidget: h1, text: node.text, index: node.id);
+            inWidget: h1,
+            text: node.text,
+            index: node.id,
+          );
 
         case 'h2':
           linkInterpolation(node);
           return copyWidgetWithText(
-              inWidget: h2, text: node.text, index: node.id);
+            inWidget: h2,
+            text: node.text,
+            index: node.id,
+          );
 
         case 'h3':
           linkInterpolation(node);
           return copyWidgetWithText(
-              inWidget: h3, text: node.text, index: node.id);
+            inWidget: h3,
+            text: node.text,
+            index: node.id,
+          );
 
         case 'h4':
           linkInterpolation(node);
           return copyWidgetWithText(
-              inWidget: h4, text: node.text, index: node.id);
+            inWidget: h4,
+            text: node.text,
+            index: node.id,
+          );
 
         case 'h5':
           linkInterpolation(node);
           return copyWidgetWithText(
-              inWidget: h5, text: node.text, index: node.id);
+            inWidget: h5,
+            text: node.text,
+            index: node.id,
+          );
 
         case 'h6':
           linkInterpolation(node);
           return copyWidgetWithText(
-              inWidget: h6, text: node.text, index: node.id);
+            inWidget: h6,
+            text: node.text,
+            index: node.id,
+          );
 
         case 'p':
           linkInterpolation(node);
           return copyWidgetWithText(
-              inWidget: p,
-              text: node.text.replaceAll('\u00A0', ''),
-              index: node.id);
+            inWidget: p,
+            text: node.text.replaceAll('\u00A0', ''),
+            index: node.id,
+          );
 
-        case 'hr':
-          return copyWidgetWithText(inWidget: hr);
+        case 'ul':
+          var li = node.querySelectorAll('li');
+          copyWidgetWithText(
+            inWidget: ul,
+            text: li,
+            index: node.id,
+          );
+          return null;
 
         default:
           return null;
