@@ -168,7 +168,7 @@ class _HeaderState extends State<Header> with TextElementStateMixin {
             child: RichText(
               text: TextSpan(
                 style: TextStyle(
-                  color: Colors.black,
+                  color: color,
                   fontSize: fontSize,
                 ),
                 children: buildContent(text, context),
@@ -191,6 +191,7 @@ class UnorderdList extends StatefulWidget {
   final List<String> listItems;
   final double iconGap;
   final double iconSize;
+  final Color iconColor;
   final ElementType type;
   final String index;
 
@@ -204,6 +205,7 @@ class UnorderdList extends StatefulWidget {
     this.listItems,
     this.iconGap,
     this.iconSize,
+    this.iconColor,
     this.type,
     this.index,
   });
@@ -221,6 +223,7 @@ class _UnorderdListState extends State<UnorderdList> {
   List<String> listItems;
   double iconGap;
   double iconSize;
+  Color iconColor;
   ElementType type;
 
   @override
@@ -238,11 +241,12 @@ class _UnorderdListState extends State<UnorderdList> {
     listItems = widget.listItems ?? [""];
     iconGap = widget.iconGap ?? model.iconGap;
     iconSize = widget.iconSize ?? model.iconSize;
+    iconColor = widget.iconColor ?? model.iconColor;
   }
 
   List<Widget> listItem(List<String> content) {
+    print(iconColor);
     List<Widget> listItems = content.map((item) {
-      print(iconSize);
       return Container(
         padding: listItemPadding,
         margin: listItemMargin,
@@ -258,6 +262,7 @@ class _UnorderdListState extends State<UnorderdList> {
               child: Icon(
                 Icons.brightness_1,
                 size: iconSize,
+                color: iconColor,
               ),
             ),
             Expanded(

@@ -11,8 +11,29 @@ import 'package:uuid/uuid.dart';
 class RenderHtml extends StatefulWidget {
   final String text;
   final ScrollController scrollcontrol;
+  final UnorderdList ul;
+  final Header h1;
+  final Header h2;
+  final Header h3;
+  final Header h4;
+  final Header h5;
+  final Header h6;
+  final Paragraph p;
+  final HR hr;
 
-  RenderHtml({this.text, this.scrollcontrol});
+  RenderHtml({
+    this.text,
+    this.scrollcontrol,
+    this.h1,
+    this.h2,
+    this.h3,
+    this.h4,
+    this.h5,
+    this.h6,
+    this.p,
+    this.ul,
+    this.hr,
+  });
 
   _RenderHtmlState createState() => _RenderHtmlState();
 }
@@ -20,10 +41,35 @@ class RenderHtml extends StatefulWidget {
 class _RenderHtmlState extends State<RenderHtml> {
   Bus bus = Bus();
   ScrollController _controller;
+  UnorderdList ul;
+  Header h1;
+  Header h2;
+  Header h3;
+  Header h4;
+  Header h5;
+  Header h6;
+  Paragraph p;
+  HR hr;
+  ConversionEngine engine;
 
   @override
   void initState() {
     super.initState();
+
+    engine = ConversionEngine(
+      classToRemove: 'hideme',
+      domain: 'amchara.com',
+      ul: widget.ul,
+      hr: widget.hr,
+      p: widget.p,
+      h1: widget.h1,
+      h2: widget.h2,
+      h3: widget.h3,
+      h4: widget.h4,
+      h5: widget.h5,
+      h6: widget.h6,
+    );
+
     _controller = widget.scrollcontrol;
     bus.screenPosition.stream.listen((offset) {
       _goToElement(offset + widget.scrollcontrol.offset);
@@ -34,11 +80,6 @@ class _RenderHtmlState extends State<RenderHtml> {
     Duration duration = Duration(milliseconds: 200);
     _controller.animateTo(offset, duration: duration, curve: Curves.easeOut);
   }
-
-  ConversionEngine engine = ConversionEngine(
-    classToRemove: 'hideme',
-    domain: 'amchara.com',
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -187,16 +228,18 @@ class ConversionEngine {
         );
       case ElementType.ul:
         return UnorderdList(
-            listPadding: inWidget.listPadding,
-            listMargin: inWidget.listMargin,
-            listItemPadding: inWidget.listItemPadding,
-            listItemMargin: inWidget.listItemMargin,
-            fontSize: inWidget.fontSize,
-            iconGap: inWidget.iconGap,
-            color: inWidget.color,
-            index: index,
-            listItems: text,
-            );
+          listPadding: inWidget.listPadding,
+          listMargin: inWidget.listMargin,
+          listItemPadding: inWidget.listItemPadding,
+          listItemMargin: inWidget.listItemMargin,
+          fontSize: inWidget.fontSize,
+          iconGap: inWidget.iconGap,
+          iconSize: inWidget.iconSize,
+          iconColor: inWidget.iconColor,
+          color: inWidget.color,
+          index: index,
+          listItems: text,
+        );
       default:
         return Container();
     }

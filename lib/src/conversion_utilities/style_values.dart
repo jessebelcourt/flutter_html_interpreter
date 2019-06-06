@@ -30,6 +30,7 @@ class ListHtmlPropertyModel extends HtmlPropertyModel {
   EdgeInsets listItemMargin;
   double iconGap;
   double iconSize;
+  Color iconColor;
 
   ListHtmlPropertyModel({
     Color color,
@@ -40,6 +41,7 @@ class ListHtmlPropertyModel extends HtmlPropertyModel {
     this.listItemMargin,
     this.iconGap,
     this.iconSize,
+    this.iconColor,
     String name,
     ElementType type,
   }) : super(
@@ -108,6 +110,7 @@ class PropertyBuilder {
 
   static final double iconGap = 5.0;
   static final double iconSize = 10.0;
+  static final Color iconColor = Colors.black;
 
   static final dynamic defaultHRHeight = 2.0;
   static final Color defaultHRColor = Colors.black;
@@ -205,6 +208,7 @@ class PropertyBuilder {
     fontSize: PropertyBuilder.defaultListFontSize,
     iconGap: PropertyBuilder.iconGap,
     iconSize: PropertyBuilder.iconSize,
+    iconColor: PropertyBuilder.iconColor,
     name: 'ul',
     type: ElementType.hr,
   );
