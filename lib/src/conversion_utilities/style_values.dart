@@ -55,6 +55,7 @@ class PropertyBuilder {
     ElementType.h5: PropertyBuilder.h6,
     ElementType.p: PropertyBuilder.p,
     ElementType.hr: PropertyBuilder.hr,
+    ElementType.ul: PropertyBuilder.ul,
   };
 
   //===== Default Paddings/ Margins ===============

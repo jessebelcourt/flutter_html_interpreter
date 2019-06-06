@@ -182,16 +182,72 @@ class _HeaderState extends State<Header> with TextElementStateMixin {
 }
 
 class UnorderdList extends StatefulWidget {
-  UnorderdList({Key key}) : super(key: key);
+  final Color color;
+  final double fontSize;
+  final EdgeInsets listPadding;
+  final EdgeInsets listMargin;
+  final EdgeInsets listItemPadding;
+  final EdgeInsets listItemMargin;
+  final List<TextSpan> listItems;
+  final ElementType type;
+
+  UnorderdList({
+    this.color,
+    this.fontSize,
+    this.listPadding,
+    this.listMargin,
+    this.listItemPadding,
+    this.listItemMargin,
+    this.listItems,
+    this.type,
+  });
 
   _UnorderdListState createState() => _UnorderdListState();
 }
 
 class _UnorderdListState extends State<UnorderdList> {
+  Color color;
+  double fontSize;
+  EdgeInsets listPadding;
+  EdgeInsets listMargin;
+  EdgeInsets listItemPadding;
+  EdgeInsets listItemMargin;
+  List<String> listItems;
+  ElementType type;
+
+  @override
+  void initState() {
+    super.initState();
+    type = ElementType.ul;
+    ListHtmlPropertyModel model = PropertyBuilder.typeMapping[type];
+
+    color = widget.color ?? model.color;
+    fontSize = widget.fontSize ?? model.fontSize;
+    listPadding = widget.listPadding ?? model.listPadding;
+    listMargin = widget.listMargin ?? model.listMargin;
+    listItemPadding = widget.listItemPadding ?? model.listItemPadding;
+    listItemMargin = widget.listItemMargin ?? model.listItemMargin;
+  }
+
+  List<Widget> listItem(List<String> content) {
+    List<Widget> listItems = content.map((item) {
+      return Row(
+        children: <Widget>[
+          Text('Temporary'),
+        ],
+      );
+    }).toList();
+    
+  }
+
   @override
   Widget build(BuildContext context) {
+    
     return Container(
-       child: child,
+      // margin: margin,
+      child: Column(
+        children: listItem(listItems),
+      ),
     );
   }
 }
@@ -212,9 +268,7 @@ mixin TextElementStateMixin {
       });
 
       if (destinationKey != null) {
-
-        RenderBox renderbox =
-            destinationKey.currentContext.findRenderObject();
+        RenderBox renderbox = destinationKey.currentContext.findRenderObject();
         var position = renderbox.localToGlobal(Offset.zero);
         bus.screenPosition.add(position.dy - renderbox.size.height);
       }
