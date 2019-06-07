@@ -25,6 +25,8 @@ class RenderHtml extends StatefulWidget {
   final String domain;
   final bool samePageLinking;
   final bool disableLinks;
+  final bool followAbsoluteLinks;
+  final RegExp omit;
 
   RenderHtml({
     this.text,
@@ -43,6 +45,8 @@ class RenderHtml extends StatefulWidget {
     this.domain,
     this.disableLinks,
     this.samePageLinking,
+    this.followAbsoluteLinks,
+    this.omit,
   });
 
   _RenderHtmlState createState() => _RenderHtmlState();
@@ -65,6 +69,8 @@ class _RenderHtmlState extends State<RenderHtml> {
   String domain;
   bool samePageLinking;
   bool stripEmptyElements;
+  bool followAbsoluteLinks;
+  RegExp omit;
 
   @override
   void initState() {
@@ -84,6 +90,8 @@ class _RenderHtmlState extends State<RenderHtml> {
       stripEmptyElements: widget.stripEmptyElements,
       domain: widget.domain,
       samePageLinking: widget.samePageLinking,
+      followAbsoluteLinks: widget.followAbsoluteLinks,
+      omit: widget.omit,
     );
 
     _controller = widget.scrollcontrol;
@@ -119,7 +127,8 @@ class ConversionEngine {
   BuildContext context;
   bool samePageLinking;
   bool disableLinks;
-
+  bool followAbsoluteLinks;
+  RegExp omit;
 
   Header h1;
   Header h2;
@@ -142,6 +151,8 @@ class ConversionEngine {
     this.domain,
     this.context,
     bool stripEmptyElements,
+    bool followAbsoluteLinks,
+    this.omit,
     Header h1,
     Header h2,
     Header h3,
@@ -164,6 +175,17 @@ class ConversionEngine {
     this.stripEmptyElements = stripEmptyElements ?? false;
     this.disableLinks = disableLinks ?? false;
     this.samePageLinking = samePageLinking ?? true;
+    this.followAbsoluteLinks = followAbsoluteLinks ?? true;
+  }
+
+  bool containsOmission(String text) {
+    if (omit != null && text.contains(omit)) {
+      print('contains term!');
+      return true;
+    } else {
+      return false;
+    }
+    // return (omit != null && text.contains(omit));
   }
 
   void linkInterpolation(dom.Element node) {
@@ -171,10 +193,7 @@ class ConversionEngine {
       List<dom.Element> els = node.getElementsByTagName('a');
       if (els != null && els.isNotEmpty) {
         els.forEach((link) {
-          if (link.text != null &&
-              link.text.isNotEmpty &&
-              !link.text.contains(RegExp(r'\[FINDME_ID_(.*)_ENDID_\]'))) {
-            // print(link.attributes);
+          if (!link.text.contains(RegExp(r'\[FINDME_ID_(.*)_ENDID_\]'))) {
             String href =
                 (link.attributes.isNotEmpty ? link.attributes['href'] : null);
             if (href != null && href != '') {
@@ -183,19 +202,21 @@ class ConversionEngine {
               // absolute links
               if (uri.isAbsolute) {
                 // does link go to outside source?
-                if (domain != null && domain.isNotEmpty && !href.contains(domain)) {
+                if (domain != null &&
+                    domain.isNotEmpty &&
+                    !href.contains(domain)) {
                   linkMap.links[id] = {
                     'href': href,
                     'type': 'external',
                     'url_type': 'absolute',
-                    'enabled': !disableLinks,
+                    'enabled': !disableLinks && followAbsoluteLinks,
                   };
                 } else {
                   linkMap.links[id] = {
                     'href': href,
                     'type': 'internal',
                     'url_type': 'absolute',
-                    'enabled': !disableLinks,
+                    'enabled': !disableLinks && followAbsoluteLinks,
                   };
                 }
               } else {
@@ -213,8 +234,7 @@ class ConversionEngine {
                 linkMap.links[id]['to_id'] = (m != null ? m.group(1) : '');
               } else {
                 linkMap.links[id]['to_id'] = '';
-              } 
-
+              }
 
               linkMap.links[id]['link_text'] = link.text;
               link.text = '[FINDME_ID_${id}_ENDID_]';
@@ -298,8 +318,16 @@ class ConversionEngine {
         return Container();
       }
 
+      // // Omit if contains regex
+      // if (omit != null && ) {
+
+      // }
+
       switch (node.localName) {
         case 'h1':
+          if (containsOmission(node.text)) {
+            return Container();
+          }
           linkInterpolation(node);
           return copyWidgetWithText(
             inWidget: h1,
@@ -308,6 +336,9 @@ class ConversionEngine {
           );
 
         case 'h2':
+          if (containsOmission(node.text)) {
+            return Container();
+          }
           linkInterpolation(node);
           return copyWidgetWithText(
             inWidget: h2,
@@ -316,6 +347,9 @@ class ConversionEngine {
           );
 
         case 'h3':
+          if (containsOmission(node.text)) {
+            return Container();
+          }
           linkInterpolation(node);
           return copyWidgetWithText(
             inWidget: h3,
@@ -324,6 +358,9 @@ class ConversionEngine {
           );
 
         case 'h4':
+          if (containsOmission(node.text)) {
+            return Container();
+          }
           linkInterpolation(node);
           return copyWidgetWithText(
             inWidget: h4,
@@ -332,6 +369,9 @@ class ConversionEngine {
           );
 
         case 'h5':
+          if (containsOmission(node.text)) {
+            return Container();
+          }
           linkInterpolation(node);
           return copyWidgetWithText(
             inWidget: h5,
@@ -340,6 +380,9 @@ class ConversionEngine {
           );
 
         case 'h6':
+          if (containsOmission(node.text)) {
+            return Container();
+          }
           linkInterpolation(node);
           return copyWidgetWithText(
             inWidget: h6,
@@ -348,6 +391,9 @@ class ConversionEngine {
           );
 
         case 'p':
+          if (containsOmission(node.text)) {
+            return Container();
+          }
           linkInterpolation(node);
           return copyWidgetWithText(
             inWidget: p,
@@ -362,8 +408,13 @@ class ConversionEngine {
           );
 
         case 'ul':
+          if (containsOmission(node.text)) {
+            return Container();
+          }
+
           List<String> li = node.querySelectorAll('li').map((item) {
             linkInterpolation(item);
+
             return item.text;
           }).toList();
 

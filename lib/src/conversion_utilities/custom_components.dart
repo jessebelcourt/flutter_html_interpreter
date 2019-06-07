@@ -36,9 +36,6 @@ class _HRState extends State<HR> {
     color = widget.color ?? model.color;
     height = widget.height ?? model.height;
     margin = widget.margin ?? model.margin;
-    print(margin);
-    print(color);
-    print(height);
   }
 
   @override
@@ -308,7 +305,8 @@ mixin TextElementStateMixin {
   void handleLinkClick(String id) {
     if (id != null && id.isNotEmpty) {
       Map<String, dynamic> link = linkMap.links[id];
-      if (link['type'] == 'external' && link['enabled']) {
+      print('link: $link');
+      if ((link['url_type'] == 'absolute' || link['type'] == '' ) && link['enabled']) {
         handleExternalLink(link['href']);
       }
 
