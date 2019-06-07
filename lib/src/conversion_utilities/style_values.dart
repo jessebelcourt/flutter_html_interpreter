@@ -63,6 +63,7 @@ class PropertyBuilder {
     ElementType.p: PropertyBuilder.p,
     ElementType.hr: PropertyBuilder.hr,
     ElementType.ul: PropertyBuilder.ul,
+    ElementType.ol: PropertyBuilder.ol,
   };
 
   //===== Default Paddings/ Margins ===============
@@ -211,6 +212,20 @@ class PropertyBuilder {
     iconSize: PropertyBuilder.iconSize,
     iconColor: PropertyBuilder.iconColor,
     name: 'ul',
-    type: ElementType.hr,
+    type: ElementType.ul,
+  );
+  
+  static ListHtmlPropertyModel ol = ListHtmlPropertyModel(
+    listPadding: PropertyBuilder.defaultListPadding,
+    listMargin: PropertyBuilder.defaultListMargin,
+    listItemPadding: PropertyBuilder.defaultListItemPadding,
+    listItemMargin: PropertyBuilder.defaultListItemPadding,
+    color: PropertyBuilder.color,
+    fontSize: PropertyBuilder.defaultListFontSize,
+    iconGap: PropertyBuilder.iconGap,
+    iconSize: PropertyBuilder.iconSize,
+    iconColor: PropertyBuilder.iconColor,
+    name: 'ol',
+    type: ElementType.ol,
   );
 }

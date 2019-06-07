@@ -40,13 +40,14 @@ class _HRState extends State<HR> {
 
   @override
   Widget build(BuildContext context) {
-   
     return Container(
       margin: margin,
-      child: height != 0 ?Divider(
-        color: color,
-        height: height,
-      ) : Container(),
+      child: height != 0
+          ? Divider(
+              color: color,
+              height: height,
+            )
+          : Container(),
     );
   }
 }
@@ -181,6 +182,128 @@ class _HeaderState extends State<Header> with TextElementStateMixin {
   }
 }
 
+class OrderedList extends StatefulWidget {
+  final Color color;
+  final double fontSize;
+  final EdgeInsets listPadding;
+  final EdgeInsets listMargin;
+  final EdgeInsets listItemPadding;
+  final EdgeInsets listItemMargin;
+  final List<String> listItems;
+  final double iconGap;
+  final double iconSize;
+  final Color iconColor;
+  final ElementType type;
+  final String index;
+
+  OrderedList({
+    this.color,
+    this.fontSize,
+    this.listPadding,
+    this.listMargin,
+    this.listItemPadding,
+    this.listItemMargin,
+    this.listItems,
+    this.iconGap,
+    this.iconSize,
+    this.iconColor,
+    this.type,
+    this.index,
+  });
+
+  _OrderedListState createState() => _OrderedListState();
+}
+
+class _OrderedListState extends State<OrderedList>
+    with TextElementStateMixin {
+  Color color;
+  double fontSize;
+  EdgeInsets listPadding;
+  EdgeInsets listMargin;
+  EdgeInsets listItemPadding;
+  EdgeInsets listItemMargin;
+  List<String> listItems;
+  double iconGap;
+  double iconSize;
+  Color iconColor;
+  ElementType type;
+
+  @override
+  void initState() {
+    super.initState();
+    type = ElementType.ol;
+    ListHtmlPropertyModel model = PropertyBuilder.typeMapping[type];
+
+    color = widget.color ?? model.color;
+    fontSize = widget.fontSize ?? model.fontSize;
+    listPadding = widget.listPadding ?? model.listPadding;
+    listMargin = widget.listMargin ?? model.listMargin;
+    listItemPadding = widget.listItemPadding ?? model.listItemPadding;
+    listItemMargin = widget.listItemMargin ?? model.listItemMargin;
+    listItems = widget.listItems ?? [""];
+    iconGap = widget.iconGap ?? model.iconGap;
+    iconSize = widget.iconSize ?? model.iconSize;
+    iconColor = widget.iconColor ?? model.iconColor;
+  }
+
+  List<Widget> listItem(List<String> content) {
+    int index = 0;
+    List<Widget> listItems = content.map((item) {
+      return Container(
+        padding: listItemPadding,
+        margin: listItemMargin,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.only(
+                right: iconGap,
+              ),
+              child: Text(
+                '${index++}.',
+                style: TextStyle(
+                  fontSize: fontSize,
+                  color: iconColor,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Container(
+                child: RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      color: color,
+                      fontSize: fontSize,
+                    ),
+                    children: buildContent(item, context),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }).toList();
+
+    return listItems;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (listItems != null && listItems.isNotEmpty) {
+      return Container(
+        padding: listPadding,
+        margin: listMargin,
+        child: Column(
+          children: listItem(listItems),
+        ),
+      );
+    } else {
+      return Container();
+    }
+  }
+}
+
 class UnorderdList extends StatefulWidget {
   final Color color;
   final double fontSize;
@@ -213,7 +336,8 @@ class UnorderdList extends StatefulWidget {
   _UnorderdListState createState() => _UnorderdListState();
 }
 
-class _UnorderdListState extends State<UnorderdList> with TextElementStateMixin {
+class _UnorderdListState extends State<UnorderdList>
+    with TextElementStateMixin {
   Color color;
   double fontSize;
   EdgeInsets listPadding;
@@ -306,7 +430,8 @@ mixin TextElementStateMixin {
     if (id != null && id.isNotEmpty) {
       Map<String, dynamic> link = linkMap.links[id];
       print('link: $link');
-      if ((link['url_type'] == 'absolute' || link['type'] == '' ) && link['enabled']) {
+      if ((link['url_type'] == 'absolute' || link['type'] == '') &&
+          link['enabled']) {
         handleExternalLink(link['href']);
       }
 

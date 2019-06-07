@@ -12,6 +12,7 @@ class RenderHtml extends StatefulWidget {
   final String text;
   final ScrollController scrollcontrol;
   final UnorderdList ul;
+  final OrderedList ol;
   final Header h1;
   final Header h2;
   final Header h3;
@@ -39,6 +40,7 @@ class RenderHtml extends StatefulWidget {
     this.h6,
     this.p,
     this.ul,
+    this.ol,
     this.hr,
     this.classToRemove,
     this.stripEmptyElements,
@@ -56,6 +58,7 @@ class _RenderHtmlState extends State<RenderHtml> {
   Bus bus = Bus();
   ScrollController _controller;
   UnorderdList ul;
+  OrderedList ol;
   Header h1;
   Header h2;
   Header h3;
@@ -78,6 +81,7 @@ class _RenderHtmlState extends State<RenderHtml> {
 
     engine = ConversionEngine(
       ul: widget.ul,
+      ol: widget.ol,
       hr: widget.hr,
       p: widget.p,
       h1: widget.h1,
@@ -139,6 +143,7 @@ class ConversionEngine {
   Paragraph p;
   HR hr;
   UnorderdList ul;
+  OrderedList ol;
   TextStyle defaultLinkStyle;
 
   Function customRender;
@@ -162,6 +167,7 @@ class ConversionEngine {
     Paragraph p,
     HR hr,
     UnorderdList ul,
+    OrderedList ol,
   }) {
     this.h1 = h1 ?? Header(type: ElementType.h1);
     this.h2 = h2 ?? Header(type: ElementType.h2);
@@ -172,6 +178,7 @@ class ConversionEngine {
     this.p = p ?? Paragraph(type: ElementType.p);
     this.hr = hr ?? HR(type: ElementType.hr);
     this.ul = ul ?? UnorderdList(type: ElementType.ul);
+    this.ol = ol ?? OrderedList(type: ElementType.ol);
     this.stripEmptyElements = stripEmptyElements ?? false;
     this.disableLinks = disableLinks ?? false;
     this.samePageLinking = samePageLinking ?? true;
@@ -236,7 +243,7 @@ class ConversionEngine {
                 linkMap.links[id]['to_id'] = '';
               }
 
-              linkMap.links[id]['link_text'] = link.text;
+              linkMap.links[id]['link_text'] = link.text.replaceAll(RegExp(r'\s+|\n'), ' ');
               link.text = '[FINDME_ID_${id}_ENDID_]';
             }
           }
@@ -292,6 +299,20 @@ class ConversionEngine {
           index: index,
           listItems: text,
         );
+      case ElementType.ol:
+        return OrderedList(
+          listPadding: inWidget.listPadding,
+          listMargin: inWidget.listMargin,
+          listItemPadding: inWidget.listItemPadding,
+          listItemMargin: inWidget.listItemMargin,
+          fontSize: inWidget.fontSize,
+          iconGap: inWidget.iconGap,
+          iconSize: inWidget.iconSize,
+          iconColor: inWidget.iconColor,
+          color: inWidget.color,
+          index: index,
+          listItems: text,
+        );
       default:
         return Container();
     }
@@ -310,21 +331,29 @@ class ConversionEngine {
       }
 
       // Strip empty elements if stripEmptyElements is true
-      if (stripEmptyElements && (node.text == '\u00A0' || node.text == '')) {
+      if (stripEmptyElements && node.text.isEmpty) {
         return Container();
       }
+
+      //Strip annoying unicode characters
+      if (node.text.contains(RegExp(r'\u00A0'))) {
+        print('node text before: ${node.text}');
+        node.text = node.text.replaceAll(RegExp(r'\u00A0'), '');
+        print('node text after: ${node.text}');
+
+      }
+
+
       // Remove node if it's class is specified in classToRemove
       if (classToRemove != null && node.classes.contains(classToRemove)) {
         return Container();
       }
 
-      // // Omit if contains regex
-      // if (omit != null && ) {
-
-      // }
+      // strip tabs
 
       switch (node.localName) {
         case 'h1':
+          node.text = node.text.replaceAll(RegExp(r'\s+|\n'), ' ');
           if (containsOmission(node.text)) {
             return Container();
           }
@@ -336,6 +365,7 @@ class ConversionEngine {
           );
 
         case 'h2':
+          node.text = node.text.replaceAll(RegExp(r'\s+|\n'), ' ');
           if (containsOmission(node.text)) {
             return Container();
           }
@@ -347,6 +377,7 @@ class ConversionEngine {
           );
 
         case 'h3':
+          node.text = node.text.replaceAll(RegExp(r'\s+|\n'), ' ');
           if (containsOmission(node.text)) {
             return Container();
           }
@@ -358,6 +389,7 @@ class ConversionEngine {
           );
 
         case 'h4':
+          node.text = node.text.replaceAll(RegExp(r'\s+|\n'), ' ');
           if (containsOmission(node.text)) {
             return Container();
           }
@@ -369,6 +401,7 @@ class ConversionEngine {
           );
 
         case 'h5':
+          node.text = node.text.replaceAll(RegExp(r'\s+|\n'), ' ');
           if (containsOmission(node.text)) {
             return Container();
           }
@@ -380,6 +413,7 @@ class ConversionEngine {
           );
 
         case 'h6':
+          node.text = node.text.replaceAll(RegExp(r'\s+|\n'), ' ');
           if (containsOmission(node.text)) {
             return Container();
           }
@@ -391,6 +425,7 @@ class ConversionEngine {
           );
 
         case 'p':
+          node.text = node.text.replaceAll(RegExp(r'\s+|\n'), ' ');
           if (containsOmission(node.text)) {
             return Container();
           }
@@ -414,12 +449,30 @@ class ConversionEngine {
 
           List<String> li = node.querySelectorAll('li').map((item) {
             linkInterpolation(item);
+            item.text = item.text.replaceAll(RegExp(r'\s+|\n'), ' ');
 
             return item.text;
           }).toList();
 
           return copyWidgetWithText(
             inWidget: ul,
+            text: li,
+            index: node.id,
+          );
+        case 'ol':
+          if (containsOmission(node.text)) {
+            return Container();
+          }
+
+          List<String> li = node.querySelectorAll('li').map((item) {
+            linkInterpolation(item);
+            item.text = item.text.replaceAll(RegExp(r'\s+|\n'), ' ');
+
+            return item.text;
+          }).toList();
+
+          return copyWidgetWithText(
+            inWidget: ol,
             text: li,
             index: node.id,
           );

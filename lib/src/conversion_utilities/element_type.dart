@@ -8,4 +8,5 @@ enum ElementType {
   p,
   hr,
   ul,
+  ol,
 }
