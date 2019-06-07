@@ -91,6 +91,7 @@ class PropertyBuilder {
     top: 5,
     bottom: 5,
     left: 10,
+    right: 10,
   );
 
   static final EdgeInsets defaultListMargin = EdgeInsets.only(
